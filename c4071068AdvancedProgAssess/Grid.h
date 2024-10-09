@@ -22,7 +22,6 @@ class Grid
 		};
 
 		void SetUpGrid(int aliveSquares, int randomSeed);
-		//void SetUpGrid();
 		enum Pattern { Empty, SpaceShip, Glider, LWSS, Toad, Blinker, Beehive, Block };
 
 		bool UpdateGrid(Pattern endsOn);
@@ -32,7 +31,15 @@ class Grid
 		void PrintGrid();
 
 	private:
-		std::bitset<64> GridGetBoxSelection64(Vector2<int> const coord);
+		template <size_t PatternSize> std::bitset<PatternSize> GridGetBoxSelection(Vector2<int> const coord, int dimension);
+		template <size_t PatternSize, size_t GridSize> bool HasOverlap(
+			const std::bitset<GridSize>& gridSegment, 
+			const std::bitset<PatternSize>& myPattern, 
+			int gridWidth, int gridHeight, int patternWidth, int patternHeight);
+		template <size_t PatternSize, size_t GridSize>std::bitset<PatternSize> ExtractPattern(
+			int row, int col, int patternHeight, int patternWidth,
+			int gridWidth, const std::bitset<GridSize>& gridSegment);
+
 		void ClearGrid();
 		void GetCellsInThreads(int* x);
 		bool GetNextFree(Vector2<int>* coord, int stepCount);

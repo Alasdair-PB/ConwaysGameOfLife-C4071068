@@ -1,9 +1,10 @@
 #include "Grid.h"
+#include "Vector2.h"
+
 #include <cstdlib>
 #include <iostream> 
-# include <windows.h>
+#include <windows.h>
 #include <bitset>
-#include "Vector2.h"
 #include <thread>
 #include <vector>
 
@@ -36,7 +37,8 @@ void Grid::SetAliveCells(int aliveSquares, int randomSeed)
 	}
 }
 
-
+// Set random value to next value accross if this value has already been selected 
+// (do recursive where neccessary)
 bool Grid::GetNextFree(Vector2<int>* pos, int stepCount)
 {
 	if (stepCount >= this->gridHeight * gridWidth)
@@ -73,6 +75,7 @@ void Grid::PrintGrid()
 	}
 }
 
+// Pass neighbouring cell states to each cell such that it can work out its next state
 void Grid::GetCellsInThreads(int* x) 
 {
 	bool* neighbours = new bool[8];
@@ -102,7 +105,7 @@ void Grid::GetCellsInThreads(int* x)
 	//delete x;
 }
 
-
+// Calls GetCellsInThreads via threads for each row then join threads
 void Grid::GetNextCells()
 {
 	std::vector<std::thread> threads;
@@ -117,8 +120,6 @@ void Grid::GetNextCells()
 	}
 }
 
-
-
 void Grid::SetNextCells() 
 {
 	for (int i = 0; i < this->gridWidth; i++)
@@ -131,7 +132,7 @@ void Grid::SetNextCells()
 }
 
 
-// Combine with default pattern check to avoid an insane amount of loops
+// NOTE TO SELF> Combine with default pattern check to avoid an insane amount of loops
 bool Grid::IsGridEmpty() 
 {
 	for (int i = 0; i < this->gridWidth; i++)
@@ -146,42 +147,77 @@ bool Grid::IsGridEmpty()
 }
 
 
-// Make polymorhpic type for marks idk not neccessary though
+// NOTE TO SELF> Make polymorhpic type for marks
 namespace Patterns
 {
+	// Method for get Dimensions
 	const std::bitset<16> block("0000011001100000");
 }
 
-bool HasOverlap(const std::bitset<64>& gridSegment, const std::bitset<16>& myPattern) 
+// Get grid area based on dimensions such that it can be comapred to pattern
+template <size_t PatternSize, size_t GridSize>
+std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeight, int patternWidth,
+	int gridWidth, const std::bitset<GridSize>& gridSegment)
 {
-	for (size_t i = 0; i <= 64 - 16; i++) 
-	{
-		std::bitset<16> to16((gridSegment >> i).to_ullong() & 0xFFFF); 
+	std::bitset<PatternSize> extractedPattern;
 
-		if (myPattern == to16) 
-			return true;
+	for (int i = 0; i < patternHeight; i++) 
+	{
+		for (int j = 0; j < patternWidth; j++) 
+		{
+			int gridIndex = (row + i) * gridWidth + (col + j);
+			extractedPattern[i * patternWidth + j] = gridSegment[gridIndex];
+		}
 	}
-	return false; 
+	return extractedPattern;
 }
 
-// Hard coded rn to be 8 by 8
-std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int> const pos)
+// Check for overlap between bits
+template <size_t PatternSize, size_t GridSize>
+bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitset<PatternSize>& myPattern,
+	int gridWidth, int gridHeight, int patternWidth, int patternHeight)
 {
-	std::bitset<64> selection;
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
+	// Don't look for the pattern where it wouldn't fit
+	int maxRow = gridHeight - patternHeight;
+	int maxCol = gridWidth - patternWidth;
+
+	for (int row = 0; row <= maxRow; row++) {
+		for (int col = 0; col <= maxCol; col++) {
+
+			// Get the pattern to compare: 64 by 64 has different dimensions to 4 by 4. 
+			// We can't do a direct comparison as 0001100000011000 would be compared to 01100110 (due to borders)
+			std::bitset<PatternSize> extractedPattern = ExtractPattern<PatternSize, GridSize>(row, col, 
+				patternHeight, patternWidth, gridWidth, gridSegment);
+			if (extractedPattern == myPattern)
+				return true;
+		}
+	}
+	return false;
+}
+
+// Create a bit set pattern of a defined bit size that can be used to compare against any pattern
+template <size_t PatternSize>
+std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int dimension)
+{
+	std::bitset<PatternSize> selection;
+	for (int i = 0; i < dimension; i++) 
+	{
+		for (int j = 0; j < dimension; j++) 
+		{
 			int gridX = pos.x + i;
 			int gridY = pos.y + j;
 
-			if (gridX >= 0 && gridX < this->gridWidth && gridY >= 0 && gridY < this->gridHeight)
-				selection[i * 8 + j] = this->grid[gridX][gridY].alive ? 1 : 0;
+			if (gridX >= 0 && gridX < this->gridWidth && 
+				gridY >= 0 && gridY < this->gridHeight)
+				selection[i * dimension + j] = this->grid[gridX][gridY].alive ? 1 : 0;
 			else
-				selection[i * 8 + j] = 0;
+				selection[i * dimension + j] = 0;
 		}
 	}
 	return selection;
 }
 
+// Checks a 8 by 8 grid around every alive block and compares it to each pattern
 bool Grid::CheckForPattern(Pattern pattern) 
 {
 	for (int i = 0; i < this->gridWidth; i++)
@@ -191,11 +227,8 @@ bool Grid::CheckForPattern(Pattern pattern)
 			if (this->grid[i][j].alive) 
 			{
 				Vector2<int> pos = Vector2<int>(i - 2, j - 2);
-				std::bitset<64> bits = GridGetBoxSelection64(pos);
-				cout << bits << endl;
-
-
-				if (HasOverlap(bits, Patterns::block))
+				std::bitset<64> bits = GridGetBoxSelection<64>(pos, 8);
+				if (HasOverlap<16, 64>(bits, Patterns::block, 8, 8, 4, 4))
 				{
 					cout << endl << "Block found!!" << endl;
 					cout << bits << endl << Patterns::block << endl;
