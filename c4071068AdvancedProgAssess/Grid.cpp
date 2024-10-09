@@ -99,22 +99,25 @@ void Grid::GetCellsInThreads(int* x)
 		this->grid[*x][y].GetNextState(neighbours, 8);
 	}
 	delete[] neighbours;
+	//delete x;
 }
 
 
-void Grid::GetNextCells() 
+void Grid::GetNextCells()
 {
 	std::vector<std::thread> threads;
 
 	for (int x = 0; x < this->gridWidth; x++)
 	{
-		threads.emplace_back(std::thread(GetCellsInThreads, &x));
+		threads.emplace_back(&Grid::GetCellsInThreads, this, new int(x));  
 	}
 
 	for (int i = 0; i < threads.size(); ++i) {
 		threads[i].join();
 	}
 }
+
+
 
 void Grid::SetNextCells() 
 {
@@ -147,8 +150,6 @@ bool Grid::IsGridEmpty()
 namespace Patterns
 {
 	const std::bitset<16> block("0000011001100000");
-
-	const std::bitset<64> test("1111111111111111111111111111111111111111000001100110000011111111"); // 64 bits
 }
 
 bool HasOverlap(const std::bitset<64>& gridSegment, const std::bitset<16>& myPattern) 
@@ -164,7 +165,7 @@ bool HasOverlap(const std::bitset<64>& gridSegment, const std::bitset<16>& myPat
 }
 
 // Hard coded rn to be 8 by 8
-std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int>const  pos)
+std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int> const pos)
 {
 	std::bitset<64> selection;
 	for (int i = 0; i < 8; i++) {
@@ -173,9 +174,9 @@ std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int>const  pos)
 			int gridY = pos.y + j;
 
 			if (gridX >= 0 && gridX < this->gridWidth && gridY >= 0 && gridY < this->gridHeight)
-				selection[i + j] = this->grid[gridX][gridY].alive? 1:0;
+				selection[i * 8 + j] = this->grid[gridX][gridY].alive ? 1 : 0;
 			else
-				selection[i + j] = 0;
+				selection[i * 8 + j] = 0;
 		}
 	}
 	return selection;
@@ -183,8 +184,6 @@ std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int>const  pos)
 
 bool Grid::CheckForPattern(Pattern pattern) 
 {
-	//cout << HasOverlap(Patterns::test, Patterns::block) << endl;
-
 	for (int i = 0; i < this->gridWidth; i++)
 	{
 		for (int j = 0; j < this->gridHeight; j++)
