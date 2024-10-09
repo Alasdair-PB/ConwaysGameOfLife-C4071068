@@ -31,12 +31,13 @@ int main()
 
     for (int i = 0; i < period; i++) 
     {
-        bool continueGame = grid.UpdateGrid();
         system("cls"); 
+
+        bool continueGame = grid.UpdateGrid();
         grid.PrintGrid();
         std::this_thread::sleep_for(std::chrono::milliseconds(stepTime));
 
-        if (continueGame)
+        if (!continueGame)
             break;
     }
 

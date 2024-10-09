@@ -9,6 +9,8 @@ class Grid
 		Cell** grid;
 		int gridWidth;
 		int gridHeight;
+
+		int stepCount;
 		int maxSteps;
 
 		Grid(int gridWidth, int gridHeight, int aliveSquares, int maxSteps, int randomSeed)
@@ -30,13 +32,15 @@ class Grid
 		void PrintGrid();
 
 	private:
-		std::bitset<64> GridGetBoxSelection16(Vector2<int> coord, int boundryBoxWidth, int boundryBoxHeight);
+		std::bitset<64> GridGetBoxSelection64(Vector2<int> const coord);
 		void ClearGrid();
+		void GetCellsInThreads(int* x);
 		bool GetNextFree(Vector2<int>* coord, int stepCount);
 		void GetNextCells();
 		void SetNextCells();
 		void SetAliveCells(int aliveSquares, int randomSeed);
 		bool CheckForPattern(Pattern pattern);
+		bool WithInMaxSteps();
 
 		// bitwise comparator 
 	

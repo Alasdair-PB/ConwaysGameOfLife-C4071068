@@ -1,5 +1,8 @@
 #pragma once
 
+
+// Using Templates
+
 template <typename T>
 class Vector2
 {

@@ -4,6 +4,8 @@
 # include <windows.h>
 #include <bitset>
 #include "Vector2.h"
+#include <thread>
+#include <vector>
 
 using namespace std;
 
@@ -22,12 +24,13 @@ void Grid::SetAliveCells(int aliveSquares, int randomSeed)
 {
 	srand(randomSeed); 
 	for (int i = 0; i < aliveSquares; i++) {
-		int x = rand() % this->gridWidth; 
-		int y = rand() % this->gridHeight; 
 
-		Vector2<int> pos = Vector2<int>(x,y);
-		pos = pos + 10; // Check he is happy with this kinda of operator overloading
+		Vector2<int> pos = Vector2<int>(
+			rand() % this->gridWidth, 
+			rand() % this->gridHeight
+		);
 
+		pos = pos + 10; // Using operator overloading
 		GetNextFree(&pos, 1);
 		this->grid[pos.x][pos.y].alive = true;
 	}
@@ -70,35 +73,47 @@ void Grid::PrintGrid()
 	}
 }
 
-void Grid::GetNextCells() {
+void Grid::GetCellsInThreads(int* x) 
+{
 	bool* neighbours = new bool[8];
-	for (int x = 0; x < this->gridWidth; x++)
+	for (int y = 0; y < this->gridHeight; y++)
 	{
-		for (int y = 0; y < this->gridHeight; y++)
+		int index = 0;
+
+		for (int offsetX = -1; offsetX <= 1; offsetX++)
 		{
-			int index = 0;
-
-			for (int offsetX = -1; offsetX <= 1; offsetX++)
+			for (int offsetY = -1; offsetY <= 1; offsetY++)
 			{
-				for (int offsetY = -1; offsetY <= 1; offsetY++)
-				{
-					if (offsetX == 0 && offsetY == 0)
-						continue;
+				if (offsetX == 0 && offsetY == 0)
+					continue;
 
-					int neighbourX = x + offsetX;
-					int neighbourY = y + offsetY;
+				int neighbourX = *x + offsetX;
+				int neighbourY = y + offsetY;
 
-					if (neighbourX >= 0 && neighbourX < gridWidth && neighbourY >= 0 && neighbourY < gridHeight)
-						neighbours[index++] = this->grid[neighbourX][neighbourY].alive;
-					else
-						neighbours[index++] = false;
-				}
+				if (neighbourX >= 0 && neighbourX < gridWidth && neighbourY >= 0 && neighbourY < gridHeight)
+					neighbours[index++] = this->grid[neighbourX][neighbourY].alive;
+				else
+					neighbours[index++] = false;
 			}
-
-			this->grid[x][y].GetNextState(neighbours, 8);
 		}
+		this->grid[*x][y].GetNextState(neighbours, 8);
 	}
 	delete[] neighbours;
+}
+
+
+void Grid::GetNextCells() 
+{
+	std::vector<std::thread> threads;
+
+	for (int x = 0; x < this->gridWidth; x++)
+	{
+		threads.emplace_back(std::thread(GetCellsInThreads, &x));
+	}
+
+	for (int i = 0; i < threads.size(); ++i) {
+		threads[i].join();
+	}
 }
 
 void Grid::SetNextCells() 
@@ -112,6 +127,8 @@ void Grid::SetNextCells()
 	}
 }
 
+
+// Combine with default pattern check to avoid an insane amount of loops
 bool Grid::IsGridEmpty() 
 {
 	for (int i = 0; i < this->gridWidth; i++)
@@ -130,45 +147,64 @@ bool Grid::IsGridEmpty()
 namespace Patterns
 {
 	const std::bitset<16> block("0000011001100000");
+
+	const std::bitset<64> test("1111111111111111111111111111111111111111000001100110000011111111"); // 64 bits
 }
 
-//	Could make this a custom opperator of in if that exists?
-bool HasOverlap(const std::bitset<64>& gridSegment, const std::bitset<16>& myPattern)
+bool HasOverlap(const std::bitset<64>& gridSegment, const std::bitset<16>& myPattern) 
 {
 	for (size_t i = 0; i <= 64 - 16; i++) 
 	{
-		std::bitset<16> to16 = ((gridSegment).any() >> i);
-		if ((myPattern & to16) == 0) {
+		std::bitset<16> to16((gridSegment >> i).to_ullong() & 0xFFFF); 
+
+		if (myPattern == to16) 
 			return true;
-		}
 	}
-	return false;
+	return false; 
 }
 
-std::bitset<64> Grid::GridGetBoxSelection16(Vector2<int> pos, int boundryBoxWidth, int boundryBoxHeight)
+// Hard coded rn to be 8 by 8
+std::bitset<64> Grid::GridGetBoxSelection64(Vector2<int>const  pos)
 {
 	std::bitset<64> selection;
-	for (int i = 0; i < boundryBoxWidth; i++) {
-		for (int j = 0; j < boundryBoxHeight; j++){
-			if ((pos.x + i) < gridWidth && (pos.y + j) < gridHeight)
-				selection[i + j] = this->grid[pos.x + i, pos.y + j]->alive;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			int gridX = pos.x + i;
+			int gridY = pos.y + j;
+
+			if (gridX >= 0 && gridX < this->gridWidth && gridY >= 0 && gridY < this->gridHeight)
+				selection[i + j] = this->grid[gridX][gridY].alive? 1:0;
 			else
 				selection[i + j] = 0;
-		} 
+		}
 	}
 	return selection;
 }
 
-
 bool Grid::CheckForPattern(Pattern pattern) 
 {
-	std::bitset<64> i = GridGetBoxSelection16(Vector2<int>(0,1), 8, 8);
-	if (HasOverlap(i, Pattern::Block)) {
-		cout << endl << "Block found!!" << endl;
-		return true;
-	}
+	//cout << HasOverlap(Patterns::test, Patterns::block) << endl;
 
-	//cout << endl << HasOverlap(i, Pattern::Block) << ": overlap" << endl;
+	for (int i = 0; i < this->gridWidth; i++)
+	{
+		for (int j = 0; j < this->gridHeight; j++)
+		{
+			if (this->grid[i][j].alive) 
+			{
+				Vector2<int> pos = Vector2<int>(i - 2, j - 2);
+				std::bitset<64> bits = GridGetBoxSelection64(pos);
+				cout << bits << endl;
+
+
+				if (HasOverlap(bits, Patterns::block))
+				{
+					cout << endl << "Block found!!" << endl;
+					cout << bits << endl << Patterns::block << endl;
+					return true;
+				}
+			}
+		}
+	}
 
 	switch (pattern)
 	{
@@ -195,22 +231,26 @@ bool Grid::CheckForPattern(Pattern pattern)
 	return false;
 }
 
+bool Grid::WithInMaxSteps() {
+	this->stepCount++;
+	if (this->stepCount >= this->maxSteps)
+		cout << "Exceeded step count" << endl;
+
+	return this->stepCount < this->maxSteps;
+}
+
 bool Grid::UpdateGrid() 
 {
 	GetNextCells();
 	SetNextCells();
-	return CheckForPattern(Empty);
+	return (!CheckForPattern(Empty)) && WithInMaxSteps();
 }
 
 bool Grid::UpdateGrid(Pattern endsOn)
 {
 	GetNextCells();
 	SetNextCells();
-
-	if (CheckForPattern(Empty))
-		return false;
-	else 
-		return CheckForPattern(endsOn);
+	return (!CheckForPattern(Empty)) && (!CheckForPattern(endsOn)) && WithInMaxSteps();
 }
 
 void Grid::TerminateGrid() {
