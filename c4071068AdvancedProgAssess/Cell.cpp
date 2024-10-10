@@ -1,4 +1,4 @@
-#include "Cell.h"
+#include "Cell.hpp"
 
 void Cell::GetNextState(bool* neighbours, const int neighbourCount)
 {
