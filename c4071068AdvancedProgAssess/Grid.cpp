@@ -152,6 +152,16 @@ namespace Patterns
 {
 	// Method for get Dimensions
 	const std::bitset<16> block("0000011001100000");
+	const std::bitset<16> beehive("");
+
+	const std::bitset<16> blinkerA(""); 
+	const std::bitset<16> blinkerB(""); 
+
+	const std::bitset<16> toadA("");
+	const std::bitset<16> toadB("");
+
+	// a glider or a LWSS appears.
+
 }
 
 // Get grid area based on dimensions such that it can be comapred to pattern
