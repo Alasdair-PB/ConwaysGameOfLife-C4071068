@@ -156,9 +156,9 @@ std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeigh
 {
 	std::bitset<PatternSize> extractedPattern;
 
-	for (int i = 0; i < patternHeight; i++) 
+	for (int i = 0; i < patternWidth; i++)
 	{
-		for (int j = 0; j < patternWidth; j++) 
+		for (int j = 0; j < patternHeight; j++)
 		{
 			int gridIndex = (row + i) * gridWidth + (col + j);
 			extractedPattern[i * patternWidth + j] = gridSegment[gridIndex];

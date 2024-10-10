@@ -22,7 +22,7 @@ namespace Experimentation
 
 bool SearchFor(Grid::Pattern pattern, int seed)
 {
-    Grid grid = Grid(32, 32, 99, 30, seed);
+    Grid grid = Grid(32, 32, 99, 5, seed);
 
     while(true){
         UpdateResult gameState = grid.UpdateGrid(pattern);
@@ -38,6 +38,7 @@ bool SearchFor(Grid::Pattern pattern, int seed)
                 break;
             case PatternFound:
                 cout << "Pattern Found" << endl;
+                grid.PrintGrid();
                 grid.TerminateGrid();
                 return true;
                 break;
@@ -54,7 +55,7 @@ bool SearchFor(Grid::Pattern pattern, int seed)
 
 void PrintGrid(int seed, const int period, const int stepTime) 
 {
-    Grid grid = Grid(32, 32, 99, 30, seed);
+    Grid grid = Grid(32, 32, 99, 5, seed);
     grid.PrintGrid();
 
     while (true) {
@@ -91,7 +92,7 @@ int main()
 
     const int stepTime = 250; 
     //PrintGrid(seed, 100, 250);
-    bool found = SearchFor(Grid::Pattern::Block , seed);
+    bool found = SearchFor(Grid::Pattern::Blinker , seed);
 
     std::cout << "Hello World!\n";
 }
