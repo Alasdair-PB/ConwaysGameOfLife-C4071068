@@ -304,7 +304,8 @@ bool Grid::CheckForPattern(Pattern pattern)
 							return end;
 						break;
 					case Grid::Beehive:
-						end = CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<30>(Patterns::beehive, bits);
+						// flipped
 						if (end)
 							return end;
 						break;
