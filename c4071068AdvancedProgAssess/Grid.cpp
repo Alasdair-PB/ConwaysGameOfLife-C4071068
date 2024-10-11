@@ -150,45 +150,73 @@ bool Grid::IsGridEmpty()
 
 
 // Get grid area based on dimensions such that it can be comapred to pattern
+
+// for 8 by 8 to 3 by 5
+// 00000000
+// 00000000
+// 00000000
+// 00000000
+// 00111100
+// 00111100
+// 00000000
+// 00000000
+
+
+// 3 by 5 => 
+
+// 000
+// 000
+// 000
+// 000
+// 001
+
 template <size_t PatternSize, size_t GridSize>
 std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeight, int patternWidth,
 	int gridWidth, const std::bitset<GridSize>& gridSegment)
 {
 	std::bitset<PatternSize> extractedPattern;
 
-	for (int i = 0; i < patternWidth; i++)
+	for (int j = 0; j < patternHeight; j++) // 1
 	{
-		for (int j = 0; j < patternHeight; j++)
+		for (int i = 0; i < patternWidth; i++) // 0
 		{
-			int gridIndex = (row + i) * gridWidth + (col + j);
-			extractedPattern[i * patternWidth + j] = gridSegment[gridIndex];
+
+			// Discovered via heavy debugging index of bitset seems to start from right of bitset data structure?
+			// (1*8) + (0) => index 8
+			int gridIndex = GridSize - 1 - (((row + j) * gridWidth) + (col + i));
+			// 1*3 + 0 => index 3
+			int patternIndex = PatternSize - 1 - ((j * patternWidth) + i);
+
+			if (gridIndex < GridSize)
+				extractedPattern[patternIndex] = gridSegment[gridIndex];
+			else
+				extractedPattern[patternIndex] = 0;
 		}
 	}
+	//cout << gridSegment << " > " << extractedPattern << " for row: " << row << " and col: "  << col << ", and pattern dimensions: " << patternWidth << " by " << patternHeight << " and " << gridWidth << endl;
 	return extractedPattern;
 }
 
-// Check for overlap between bits
+// Check for overlap for each bit (including dead cells)
 template <size_t PatternSize, size_t GridSize>
 bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitset<PatternSize>& myPattern,
-	int gridWidth, int gridHeight, Vector2<int> dimensions)
+	int selectionWidth, Vector2<int> dimensions)
 {
 	// Don't look for the pattern where it wouldn't fit
-	int maxRow = gridHeight - dimensions.y;
-	int maxCol = gridWidth - dimensions.x;
+	int maxRow = selectionWidth;// -dimensions.y;
+	int maxCol = selectionWidth;// -dimensions.x;
 
-	for (int row = 0; row <= maxRow; row++) {
-		for (int col = 0; col <= maxCol; col++) {
+	for (int row = 0; row < maxRow; row++) {
+		for (int col = 0; col < maxCol; col++) {
 
 			// Get the pattern to compare: 64 by 64 has different dimensions to 4 by 4. 
 			// We can't do a direct comparison as 0001100000011000 would be compared to 01100110 (due to borders)
-			std::bitset<PatternSize> extractedPattern = ExtractPattern<PatternSize, GridSize>(row, col, 
-				dimensions.y, dimensions.x, gridWidth, gridSegment);
+			std::bitset<PatternSize> extractedPattern = ExtractPattern<PatternSize, 64>(row, col, 
+				dimensions.y, dimensions.x, selectionWidth, gridSegment);
 
-			// More expensive than just == on all, but keeping for debugging
-			if (extractedPattern.count() < 3)
-				continue;
+			if (extractedPattern.count() > 3 && this -> stepCount == 29)
+				cout << extractedPattern << " at step: " << this->stepCount << endl;
 
-			cout << extractedPattern << endl;
 			if (extractedPattern == myPattern)
 				return true;
 		}
@@ -197,6 +225,7 @@ bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitse
 }
 
 // Create a bit set pattern of a defined bit size that can be used to compare against any pattern
+// dimesion is the width/height of the box selection- technically could get this from sqr(ptrSize) but that would be expensive
 template <size_t PatternSize>
 std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int dimension)
 {
@@ -210,9 +239,9 @@ std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int d
 
 			if (gridX >= 0 && gridX < this->gridWidth && 
 				gridY >= 0 && gridY < this->gridHeight)
-				selection[i * dimension + j] = this->grid[gridX][gridY].alive ? 1 : 0;
+				selection[(i * dimension) + j] = this->grid[gridX][gridY].alive ? 1 : 0;
 			else
-				selection[i * dimension + j] = 0;
+				selection[(i * dimension) + j] = 0;
 		}
 	}
 	return selection;
@@ -223,7 +252,7 @@ template <size_t PatternSize> bool Grid::CheckForOverlap(PatternMask<PatternSize
 	const std::bitset<PatternSize> myPattern = patternBase.GetPattern();
 	const Vector2<int> patternDimensions = patternBase.GetDimensions();
 
-	if (HasOverlap<PatternSize, 64>(bits, myPattern, 8, 8, patternDimensions)) // change to dimesnions
+	if (HasOverlap<PatternSize, 64>(bits, myPattern, 8, patternDimensions)) // change to dimesnions
 		return true;
 	return false;
 }
@@ -237,35 +266,52 @@ bool Grid::CheckForPattern(Pattern pattern)
 		{
 			if (this->grid[i][j].alive) 
 			{
+				if (this->stepCount == 29)
+					cout << "Hey this happens" << endl;
+
 				Vector2<int> pos = Vector2<int>(i - 2, j - 2);
 				std::bitset<64> bits = GridGetBoxSelection<64>(pos, 8);
 				int aliveSquares = bits.count(); // use for optimizations 
 
-				if (aliveSquares < 3)
-					return false;
-
+				if (this->stepCount == 29)
+					cout << aliveSquares << endl;
+				bool end;
 				switch (pattern)
 				{
 					case Grid::SpaceShip:
-						return CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::Glider:
-						return CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::LWSS:
-						return CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::Toad:
-						return CheckForOverlap<24>(Patterns::toadA, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::Blinker:
-						return CheckForOverlap<15>(Patterns::blinkerA, bits);
+						end = CheckForOverlap<15>(Patterns::blinkerA, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::Beehive:
-						return CheckForOverlap<30>(Patterns::beehive, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					case Grid::Block:
-						return CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<16>(Patterns::block, bits);
+						if (end)
+							return end;
 						break;
 					default:
 						break;

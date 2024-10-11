@@ -40,7 +40,7 @@ class Grid
 		template <size_t PatternSize, size_t GridSize> bool HasOverlap(
 			const std::bitset<GridSize>& gridSegment,
 			const std::bitset<PatternSize>& myPattern,
-			int gridWidth, int gridHeight, Vector2<int> dimensions);
+			int selectionWidth, Vector2<int> dimensions);
 		template <size_t PatternSize, size_t GridSize>std::bitset<PatternSize> ExtractPattern(
 			int row, int col, int patternHeight, int patternWidth,
 			int gridWidth, const std::bitset<GridSize>& gridSegment);
