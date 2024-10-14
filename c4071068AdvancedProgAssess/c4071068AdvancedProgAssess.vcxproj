@@ -141,6 +141,7 @@
     <ClInclude Include="MyConsole.hpp" />
     <ClInclude Include="Pattern.hpp" />
     <ClInclude Include="Patterns.hpp" />
+    <ClInclude Include="SaveManager.hpp" />
     <ClInclude Include="SeedGenerator.hpp" />
     <ClInclude Include="Vector2.hpp" />
   </ItemGroup>
