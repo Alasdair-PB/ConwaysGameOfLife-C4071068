@@ -25,3 +25,8 @@ public:
 
     // Get Flipped
 };
+
+
+class PatternMaskObject {
+
+};

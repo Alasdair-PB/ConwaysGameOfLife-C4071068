@@ -62,19 +62,21 @@ bool Grid::GetNextFree(Vector2<int>* pos, int stepCount)
 
 void Grid::PrintGrid() 
 {
+	string myOutput = "";
 	for (int i = 0; i < this->gridWidth; i++)
 	{
-		cout << ".";
+		myOutput +=".";
 		for (int j = 0; j < this->gridHeight; j++)
 		{
 			if (this->grid[i][j].alive)
-				cout << "o";
+				myOutput += "o";
 			else
-				cout << " ";
-			cout << ".";
+				myOutput += " ";
+			myOutput += ".";
 		}
-		cout << endl;
+		myOutput += "\n";
 	}
+	cout << myOutput;
 }
 
 // Pass neighbouring cell states to each cell such that it can work out its next state
