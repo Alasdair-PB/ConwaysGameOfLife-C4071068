@@ -20,7 +20,11 @@ class Game
 
         Game()
         {
-
+            this->seed = 0;
+            this->gridWidth = 32;
+            this->gridHeight = 32;
+            this->aliveCells = 99;
+            this->maxSteps = 30;
         }
 
 	    Game(int seed)
