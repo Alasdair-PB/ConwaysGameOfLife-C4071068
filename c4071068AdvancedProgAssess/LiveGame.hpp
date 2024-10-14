@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Grid.hpp"
 #include "Game.hpp"
-
+#include <conio.h>
 #include <thread>
 #include <chrono>
 #include "Pattern.hpp"
@@ -37,6 +37,7 @@ class LiveGame : Game
             grid.PrintGrid();
 
             while (true) {
+                CheckPause();
                 system("cls");
                 UpdateResult gameState = grid.UpdateGrid();
                 grid.PrintGrid();
@@ -63,11 +64,11 @@ class LiveGame : Game
 
         bool FindPattern(Grid::Pattern pattern) override
         {
-            Grid grid = Grid(this->gridWidth, this->gridHeight, this->aliveCells, this->maxSteps, this->seed);
 
+
+            Grid grid = Grid(this->gridWidth, this->gridHeight, this->aliveCells, this->maxSteps, this->seed);
             while (true) {
                 UpdateResult gameState = grid.UpdateGrid(pattern);
-
                 switch (gameState)
                 {
                 case StepCountExceeded:
@@ -90,6 +91,17 @@ class LiveGame : Game
                 default:
                     break;
                 }
+            }
+        }
+
+    private:
+        void CheckPause()
+        {
+            if (_kbhit()) {
+                system("cls");
+                char x;
+                cout << "Paused: enter a key to continue" << endl;
+                cin >> x;
             }
         }
 

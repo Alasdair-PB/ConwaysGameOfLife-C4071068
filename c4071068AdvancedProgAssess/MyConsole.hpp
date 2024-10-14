@@ -6,6 +6,7 @@
 #include "Game.hpp"
 #include "SeedGenerator.hpp"
 #include "LiveGame.hpp"
+#include <conio.h>
 
 using namespace std;
 
@@ -91,6 +92,18 @@ class MyConsole
             CreateNewSeedSearch(pattern, startSeed, gridWidth, gridHeight, maxSteps, aliveCells);
         }
 
+        void CheckPause() 
+        {
+            if (_kbhit()) {
+                WaitAndClear();
+                char x;
+                cout << "Paused: enter a key to continue" << endl;
+                cin >> x;
+                WaitAndClear();
+                cout << "Searching..." << endl;
+            }
+        }
+
         void CreateNewSeedSearch(Grid::Pattern pattern, int startSeed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
         {
             WaitAndClear();
@@ -105,6 +118,7 @@ class MyConsole
                 seed = generator.GetNextSeed();
                 myGame = Game(seed, gridWidth, gridHeight, aliveCells, maxSteps);
                 continueGame = !(myGame.FindPattern(pattern));
+                CheckPause();
             }
 
             cout << "Enter any key to proceed" << endl;
