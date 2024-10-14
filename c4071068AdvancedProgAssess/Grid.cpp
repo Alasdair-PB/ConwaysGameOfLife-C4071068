@@ -176,15 +176,13 @@ std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeigh
 {
 	std::bitset<PatternSize> extractedPattern;
 
-	for (int j = 0; j < patternHeight; j++) // 1
+	for (int j = 0; j < patternHeight; j++) 
 	{
-		for (int i = 0; i < patternWidth; i++) // 0
+		for (int i = 0; i < patternWidth; i++) 
 		{
 
-			// Discovered via heavy debugging index of bitset seems to start from right of bitset data structure?
-			// (1*8) + (0) => index 8
+			// Discovered via heavy debugging index of bitset seems to start from right of bitset data structure
 			int gridIndex = GridSize - 1 - (((row + j) * gridWidth) + (col + i));
-			// 1*3 + 0 => index 3
 			int patternIndex = PatternSize - 1 - ((j * patternWidth) + i);
 
 			if (gridIndex < GridSize)
@@ -193,7 +191,6 @@ std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeigh
 				extractedPattern[patternIndex] = 0;
 		}
 	}
-	//cout << gridSegment << " > " << extractedPattern << " for row: " << row << " and col: "  << col << ", and pattern dimensions: " << patternWidth << " by " << patternHeight << " and " << gridWidth << endl;
 	return extractedPattern;
 }
 
@@ -202,9 +199,8 @@ template <size_t PatternSize, size_t GridSize>
 bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitset<PatternSize>& myPattern,
 	int selectionWidth, Vector2<int> dimensions)
 {
-	// Don't look for the pattern where it wouldn't fit
-	int maxRow = selectionWidth;// -dimensions.y;
-	int maxCol = selectionWidth;// -dimensions.x;
+	int maxRow = selectionWidth;
+	int maxCol = selectionWidth;
 
 	for (int row = 0; row < maxRow; row++) {
 		for (int col = 0; col < maxCol; col++) {
@@ -213,9 +209,6 @@ bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitse
 			// We can't do a direct comparison as 0001100000011000 would be compared to 01100110 (due to borders)
 			std::bitset<PatternSize> extractedPattern = ExtractPattern<PatternSize, 64>(row, col, 
 				dimensions.y, dimensions.x, selectionWidth, gridSegment);
-
-			if (extractedPattern.count() > 3 && this -> stepCount == 29)
-				cout << extractedPattern << " at step: " << this->stepCount << endl;
 
 			if (extractedPattern == myPattern)
 				return true;
@@ -252,7 +245,7 @@ template <size_t PatternSize> bool Grid::CheckForOverlap(PatternMask<PatternSize
 	const std::bitset<PatternSize> myPattern = patternBase.GetPattern();
 	const Vector2<int> patternDimensions = patternBase.GetDimensions();
 
-	if (HasOverlap<PatternSize, 64>(bits, myPattern, 8, patternDimensions)) // change to dimesnions
+	if (HasOverlap<PatternSize, 64>(bits, myPattern, 8, patternDimensions)) 
 		return true;
 	return false;
 }
@@ -266,35 +259,25 @@ bool Grid::CheckForPattern(Pattern pattern)
 		{
 			if (this->grid[i][j].alive) 
 			{
-				if (this->stepCount == 29)
-					cout << "Hey this happens" << endl;
 
 				Vector2<int> pos = Vector2<int>(i - 2, j - 2);
 				std::bitset<64> bits = GridGetBoxSelection<64>(pos, 8);
 				int aliveSquares = bits.count(); // use for optimizations 
-
-				if (this->stepCount == 29)
-					cout << aliveSquares << endl;
 				bool end;
 				switch (pattern)
 				{
-					case Grid::SpaceShip:
-						end = CheckForOverlap<16>(Patterns::block, bits);
-						if (end)
-							return end;
-						break;
 					case Grid::Glider:
-						end = CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<25>(Patterns::glider, bits);
 						if (end)
 							return end;
 						break;
 					case Grid::LWSS:
-						end = CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<42>(Patterns::lwss, bits);
 						if (end)
 							return end;
 						break;
 					case Grid::Toad:
-						end = CheckForOverlap<16>(Patterns::block, bits);
+						end = CheckForOverlap<24>(Patterns::toadA, bits);
 						if (end)
 							return end;
 						break;

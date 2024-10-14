@@ -30,6 +30,9 @@
     <ClCompile Include="Pattern.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LiveGame.hpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Grid.hpp">
@@ -45,6 +48,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Patterns.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyConsole.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeedGenerator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

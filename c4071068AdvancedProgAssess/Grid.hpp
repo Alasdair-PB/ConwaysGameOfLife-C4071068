@@ -26,7 +26,35 @@ class Grid
 		};
 
 		void SetUpGrid(int aliveSquares, int randomSeed);
-		enum Pattern { Empty, SpaceShip, Glider, LWSS, Toad, Blinker, Beehive, Block };
+
+		enum Pattern { Empty, Glider, LWSS, Toad, Blinker, Beehive, Block };
+
+
+		const static bool IsSpaceship(Pattern pattern)
+		{
+				switch (pattern)
+				{
+					case Glider: return true;
+					case LWSS: return true;
+					default: return false;
+			}
+		}
+
+		const static char* GetPatternName(Pattern pattern) 
+		{
+			switch (pattern) 
+			{
+				case Blinker: return "Blinker";
+				case Block: return "Block";
+				case Glider: return "Glider";
+				case LWSS: return "LWSS";
+				case Toad: return "Toad";
+				case Beehive: return "Beehive";
+				case Empty: return "Empty";
+				default: return "Unknown Pattern";
+			}
+		}
+
 		UpdateResult UpdateGrid(Pattern endsOn);
 		UpdateResult UpdateGrid();
 		bool IsGridEmpty();
@@ -53,16 +81,5 @@ class Grid
 		void SetNextCells();
 		void SetAliveCells(int aliveSquares, int randomSeed);
 		bool CheckForPattern(Pattern pattern);
-
-		// bitwise comparator 
-	
-		// Get top square of moving block and do a block selection, get if left most pont has shifted from last frame with checking period 
-		// SpaceShips go off the screen!!!!!!!! < maybe do a catch method with a buffer grid
-		// ^^ Cannot be the only definitiopn of a space ship- spaceships need to be detecteed
-		// before going off screen
-		// 
-		// 
-		// Create an array of x size where each time a period is different extend the array size and check until its the same as first 
-		// Recognition system is priority!!
 };
 
