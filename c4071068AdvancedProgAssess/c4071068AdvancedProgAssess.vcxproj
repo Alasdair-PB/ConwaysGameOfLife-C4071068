@@ -140,7 +140,6 @@
     <ClInclude Include="Grid.hpp" />
     <ClInclude Include="MyConsole.hpp" />
     <ClInclude Include="Pattern.hpp" />
-    <ClInclude Include="PatternMaskObject.hpp" />
     <ClInclude Include="Patterns.hpp" />
     <ClInclude Include="SaveManager.hpp" />
     <ClInclude Include="SeedGenerator.hpp" />

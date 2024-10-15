@@ -279,9 +279,11 @@ bool Grid::CheckForPattern(Pattern pattern)
 							return end;
 						break;
 					case Grid::Toad:
-						end = CheckForOverlap<24>(Patterns::toadA, bits);
-						if (end)
-							return end;
+						if (CheckForOverlap<24>(Patterns::toadA1, bits) || 
+							CheckForOverlap<24>(Patterns::toadA2, bits) ||
+							CheckForOverlap<24>(Patterns::toadA3, bits) ||
+							CheckForOverlap<24>(Patterns::toadA4, bits))
+							return true;
 						break;
 					case Grid::Blinker:
 						end = CheckForOverlap<15>(Patterns::blinkerA, bits);
