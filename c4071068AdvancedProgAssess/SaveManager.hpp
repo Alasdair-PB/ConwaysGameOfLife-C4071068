@@ -32,8 +32,13 @@ namespace SaveManager
                 &data.aliveCells,
                 &data.seed);
 
+            // Debug output
+            std::cout << "Pattern: " << static_cast<int>(data.pattern) << std::endl;
+            std::cout << "Grid Width: " << data.gridWidth << std::endl;
+            std::cout << "Grid Height: " << data.gridHeight << std::endl;
+            std::cout << "Alive Cells: " << data.aliveCells << std::endl;
+            std::cout << "Seed: " << data.seed << std::endl;
 
-            // Debug here
             return data;
         }
     };
