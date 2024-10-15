@@ -31,6 +31,9 @@ namespace SaveManager
                 &data.gridHeight,
                 &data.aliveCells,
                 &data.seed);
+
+
+            // Debug here
             return data;
         }
     };
