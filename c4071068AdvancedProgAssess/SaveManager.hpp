@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "Grid.hpp"
 
 namespace SaveManager
@@ -25,23 +26,22 @@ namespace SaveManager
         static GameSaveData fromJSON(const std::string& jsonString)
         {
             GameSaveData data;
-            sscanf_s(jsonString.c_str(), "{ \"slot\": \"%*s\", \"pattern\": %d, \"gridWidth\": %d, \"gridHeight\": %d, \"aliveCells\": %d, \"seed\": %d }",
-                reinterpret_cast<int*>(&data.pattern),
+            int patternValue = 0;
+            char slot[32];
+
+            sscanf_s(jsonString.c_str(), "{ \"slot\": \"%31[^\"]\", \"pattern\": %d, \"gridWidth\": %d, \"gridHeight\": %d, \"aliveCells\": %d, \"seed\": %d }",
+                slot, (unsigned)_countof(slot),
+                &patternValue,
                 &data.gridWidth,
                 &data.gridHeight,
                 &data.aliveCells,
                 &data.seed);
 
-            // Debug output
-            std::cout << "Pattern: " << static_cast<int>(data.pattern) << std::endl;
-            std::cout << "Grid Width: " << data.gridWidth << std::endl;
-            std::cout << "Grid Height: " << data.gridHeight << std::endl;
-            std::cout << "Alive Cells: " << data.aliveCells << std::endl;
-            std::cout << "Seed: " << data.seed << std::endl;
-
+            data.pattern = static_cast<Grid::Pattern>(patternValue);
             return data;
         }
     };
+
 
     GameSaveData LoadData(const std::string& filename, Grid::Pattern pattern, int slotNumber)
     {
@@ -65,6 +65,32 @@ namespace SaveManager
 
         return data;
     }
+
+
+    std::vector<GameSaveData> LoadAllData(const std::string& filename, Grid::Pattern pattern)
+    {
+        std::ifstream inFile(filename);
+        std::vector<GameSaveData> matchingData;
+
+        if (inFile.is_open())
+        {
+            std::string line;
+            std::string patternName = std::string(Grid::GetPatternName(pattern));
+
+            while (std::getline(inFile, line))
+            {
+                if (line.find("\"slot\": \"" + patternName) != std::string::npos)
+                {
+                    GameSaveData data = GameSaveData::fromJSON(line);
+                    matchingData.push_back(data);
+                }
+            }
+            inFile.close();
+        }
+        return matchingData;
+    }
+
+
 
     void SaveData(const std::string& filename, const GameSaveData& data)
     {

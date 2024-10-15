@@ -25,31 +25,32 @@ class MyConsole
 
         void LoadSeed()
         {
+            WaitAndClear();
             int choice;
-            cout << "Which pattern would you like to load?: " << endl;
-            choice = GetAllChoices();
+            string message = "Which pattern would you like to load?: ";
+            choice = GetAllChoices(message);
 
-            SaveManager::GameSaveData saveData = { Grid::Pattern::Empty, 0, 0, 0, 0 }; 
+            std::vector<SaveManager::GameSaveData> allData;
 
             switch (choice)
             {
                 case Grid::Blinker:
-                    saveData = SaveManager::LoadData(fileName, Grid::Blinker, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::Blinker);
                     break;
                 case Grid::Block:
-                    saveData = SaveManager::LoadData(fileName, Grid::Block, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::Block);
                     break;
                 case Grid::Glider:
-                    saveData = SaveManager::LoadData(fileName, Grid::Glider, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::Glider);
                     break;
                 case Grid::LWSS:
-                    saveData = SaveManager::LoadData(fileName, Grid::LWSS, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::LWSS);
                     break;
                 case Grid::Toad:
-                    saveData = SaveManager::LoadData(fileName, Grid::Toad, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::Toad);
                     break;
                 case Grid::Beehive:
-                    saveData = SaveManager::LoadData(fileName, Grid::Beehive, 1);
+                    allData = SaveManager::LoadAllData(fileName, Grid::Beehive);
                     break;
                 case Grid::Empty: 
                     break;
@@ -57,11 +58,37 @@ class MyConsole
                     break; 
             }
 
-            if (saveData.pattern == Grid::Empty)
+
+            int dataSize = allData.size();
+            if (dataSize == 0)
                 cout << "No data has been saved for this pattern. " << endl;
             else 
             {
-                ViewCreateSeed(saveData.seed, saveData.gridWidth, saveData.gridHeight, saveData.aliveCells);
+                cout << "Save Data has been found!" << endl;
+                choice = 0;
+
+                if (dataSize > 1)
+                {
+                    WaitAndClear();
+                    string message;
+                    message += "Which save slot would you like to load?\n";
+                    for (int i = 0; i < dataSize; i++) {
+                        message += "Slot: " + std::to_string(i) + "\n";
+                    }
+
+                    choice = CinIntValueContinuous(message);
+
+                    if (choice >= dataSize) 
+                    {
+                        WaitAndClear();
+                        cout << "Input given does not correspond to options- defaulting to slot 0" << endl;
+                        choice = 0;
+                    }
+
+                }
+
+                WaitAndClear();
+                ViewCreateSeed(allData[choice].seed, allData[choice].gridWidth, allData[choice].gridHeight, allData[choice].aliveCells);
             }
 
             WaitAndClear();
@@ -70,8 +97,10 @@ class MyConsole
 
         void SaveSeed(Grid::Pattern pattern, int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells) {
             int choice;
-            cout << "Would you like to save this seed:" << endl << "(1) Yes " << endl << "(2) No" << endl;
-            cin >> choice;
+
+            string message = "Would you like to save this seed?:\n(1) Yes\n(2) No\n";
+            choice = CinIntValueContinuous(message);
+
 
             switch (choice)
             {
@@ -94,18 +123,18 @@ class MyConsole
         void ViewCreateSeed(int seed, int gridWidth, int gridHeight, int aliveCells)
         {
             int choice;
-            cout << "Would you like to see this seed develop?:" << endl << "(1) Yes " << endl << "(2) No" << endl;
+            string message = "Would you like to see this seed develop?:\n(1) Yes\n(2) No\n";
             const int stepTime = 300;
-            cin >> choice;
+
+            choice = CinIntValueContinuous(message);
 
             switch (choice)
             {
                 case(1):
                 {
                     WaitAndClear();
-                    cout << "Over how many steps would you like to see this step develop?" << endl;
-                    cin >> choice;
-
+                    string message =  "Over how many steps would you like to see this step develop?";
+                    choice = CinIntValueContinuous(message);
                     LiveGame myGame = LiveGame(seed, gridWidth, gridHeight, aliveCells, choice, stepTime);
                     myGame.PlayGame();
                     break;
@@ -124,8 +153,8 @@ class MyConsole
         {
             WaitAndClear();
             int choice;
-            cout << "Please input a " << name << " value:" << endl;
-            cin >> choice;
+            string message = "Please input a " + name + " value:";
+            choice = CinIntValueContinuous(message);
             return choice;
         }
 
@@ -198,24 +227,59 @@ class MyConsole
             GameModes();
         }
 
-        int GetAllChoices() 
+        int CinIntValueContinuous(string message)
         {
-            for (int firstItem = Grid::Glider; firstItem != Grid::Block + 1; firstItem++)
-            {
-                cout << Grid::GetPatternName((Grid::Pattern)firstItem) << " (" << firstItem << ")" << endl;
+            while (true) {
+                cout << message << endl;
+                int choice;
+                cin >> choice;
+
+                if (std::cin.fail())
+                {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    WaitAndClear();
+                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    WaitAndClear();
+                }
+                else
+                    return choice;
             }
-            int choice;
-            cin >> choice;
-            return choice;
+        }
+
+        int GetAllChoices(string message) 
+        {
+            while (true) {
+                cout << message << endl;
+                for (int firstItem = Grid::Glider; firstItem != Grid::Block + 1; firstItem++)
+                {
+                    cout << Grid::GetPatternName((Grid::Pattern)firstItem) << " (" << firstItem << ")" << endl;
+                }
+                int choice;
+                cin >> choice;
+
+
+
+                if (std::cin.fail())
+                {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    WaitAndClear();
+                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    WaitAndClear();
+                }
+                else
+                    return choice;
+            }
         }
 
         void NewSeed()
         {
             WaitAndClear();
-            std::cout << "Is there a specific pattern you wish to search for?" << endl;
+            string message = "Is there a specific pattern you wish to search for?";
 
             int choice;
-            choice = GetAllChoices();
+            choice = GetAllChoices(message);
 
             switch (choice)
             {
@@ -242,12 +306,12 @@ class MyConsole
             }
         }
 
+
         void GameModes() 
         {
             int choice;
-            std::cout << "would you like to:" << endl << "(1) Load Game By Seed" << 
-                endl << "(2) Start New Game" << endl << "(3) End Game" << endl;
-            cin >> choice;
+            std::string message = "Would you like to:\n(1) Load Game By Seed\n(2) Start New Game\n(3) End Game\n";
+            choice = CinIntValueContinuous(message);
 
             switch (choice)
             {
@@ -261,7 +325,10 @@ class MyConsole
             case (3):
                 return;
             default:
+                WaitAndClear();
                 cout << "Your input did not correlate to any valid inputs." << endl;
+                WaitAndClear();
+                GameModes();
                 break;
             }
         }

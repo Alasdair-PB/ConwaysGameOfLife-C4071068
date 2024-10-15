@@ -1,1 +1,5 @@
 { "slot": "Block1", "pattern": 6, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 0 }
+{ "slot": "Beehive1", "pattern": 5, "gridWidth": 32, "gridHeight": 32, "aliveCells": 101, "seed": 1 }
+{ "slot": "Block2", "pattern": 6, "gridWidth": 43, "gridHeight": 54, "aliveCells": 140, "seed": 54 }
+{ "slot": "Glider1", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 250, "seed": 16 }
+{ "slot": "Block3", "pattern": 6, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 30 }
