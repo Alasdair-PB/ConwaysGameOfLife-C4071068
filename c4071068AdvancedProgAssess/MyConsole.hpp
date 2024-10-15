@@ -5,6 +5,7 @@
 #include "Pattern.hpp"
 #include "Game.hpp"
 #include "SeedGenerator.hpp"
+#include "SaveManager.hpp"
 #include "LiveGame.hpp"
 #include <conio.h>
 
@@ -14,6 +15,8 @@ class MyConsole
 {
     private:
 
+        const string fileName = "myFile.json";
+
         void WaitAndClear() 
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -22,32 +25,73 @@ class MyConsole
 
         void LoadSeed()
         {
-            cout << "Not Implented- too bad!" << endl;
+            int choice;
+            cout << "Which pattern would you like to load?: " << endl;
+            choice = GetAllChoices();
+
+            SaveManager::GameSaveData saveData = { Grid::Pattern::Empty, 0, 0, 0, 0 }; 
+
+            switch (choice)
+            {
+                case Grid::Blinker:
+                    saveData = SaveManager::LoadData(fileName, Grid::Blinker, 1);
+                    break;
+                case Grid::Block:
+                    saveData = SaveManager::LoadData(fileName, Grid::Block, 1);
+                    break;
+                case Grid::Glider:
+                    saveData = SaveManager::LoadData(fileName, Grid::Glider, 1);
+                    break;
+                case Grid::LWSS:
+                    saveData = SaveManager::LoadData(fileName, Grid::LWSS, 1);
+                    break;
+                case Grid::Toad:
+                    saveData = SaveManager::LoadData(fileName, Grid::Toad, 1);
+                    break;
+                case Grid::Beehive:
+                    saveData = SaveManager::LoadData(fileName, Grid::Beehive, 1);
+                    break;
+                case Grid::Empty: 
+                    break;
+                default: 
+                    break; 
+            }
+
+            if (saveData.pattern == Grid::Empty)
+                cout << "No data has been saved for this pattern. " << endl;
+            else 
+            {
+                ViewCreateSeed(saveData.seed, saveData.gridWidth, saveData.gridHeight, saveData.aliveCells);
+            }
+
             WaitAndClear();
             GameModes();
         }
 
-        void SaveSeed(int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells) {
+        void SaveSeed(Grid::Pattern pattern, int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells) {
             int choice;
             cout << "Would you like to save this seed:" << endl << "(1) Yes " << endl << "(2) No" << endl;
             cin >> choice;
 
             switch (choice)
             {
-                case(1):
-                    // save Seed
+                case(1): 
+                {
+                    SaveManager::GameSaveData saveData = { pattern, gridWidth, gridHeight, aliveCells, seed};
+                    SaveManager::SaveData(fileName, saveData);
                     cout << "This Seed has been Saved" << endl;
                     WaitAndClear();
 
                     break;
+                }
                 default:
                     break;
             }
 
         }
 
-        // Maybe include current step count??
-        void ViewCreateSeed(int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
+        
+        void ViewCreateSeed(int seed, int gridWidth, int gridHeight, int aliveCells)
         {
             int choice;
             cout << "Would you like to see this seed develop?:" << endl << "(1) Yes " << endl << "(2) No" << endl;
@@ -58,7 +102,11 @@ class MyConsole
             {
                 case(1):
                 {
-                    LiveGame myGame = LiveGame(seed, gridWidth, gridHeight, aliveCells, maxSteps, stepTime);
+                    WaitAndClear();
+                    cout << "Over how many steps would you like to see this step develop?" << endl;
+                    cin >> choice;
+
+                    LiveGame myGame = LiveGame(seed, gridWidth, gridHeight, aliveCells, choice, stepTime);
                     myGame.PlayGame();
                     break;
                 }
@@ -126,8 +174,8 @@ class MyConsole
             cin >> x;
             
             WaitAndClear();
-            ViewCreateSeed(seed, gridWidth, gridHeight, maxSteps, aliveCells);
-            SaveSeed(seed, gridWidth,gridHeight, maxSteps, aliveCells);
+            ViewCreateSeed(seed, gridWidth, gridHeight, aliveCells);
+            SaveSeed(pattern, seed, gridWidth,gridHeight, maxSteps, aliveCells);
 
             WaitAndClear();
             int choice;
@@ -150,17 +198,24 @@ class MyConsole
             GameModes();
         }
 
-        void NewSeed()
+        int GetAllChoices() 
         {
-            WaitAndClear();
-            int choice;
-            std::cout << "Is there a specific pattern you wish to search for?" << endl;
-
             for (int firstItem = Grid::Glider; firstItem != Grid::Block + 1; firstItem++)
             {
                 cout << Grid::GetPatternName((Grid::Pattern)firstItem) << " (" << firstItem << ")" << endl;
             }
+            int choice;
             cin >> choice;
+            return choice;
+        }
+
+        void NewSeed()
+        {
+            WaitAndClear();
+            std::cout << "Is there a specific pattern you wish to search for?" << endl;
+
+            int choice;
+            choice = GetAllChoices();
 
             switch (choice)
             {
