@@ -14,3 +14,4 @@
 { "slot": "Glider3", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 42 }
 { "slot": "Glider4", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 85 }
 { "slot": "LWSS1", "pattern": 2, "gridWidth": 42, "gridHeight": 42, "aliveCells": 250, "seed": 1718 }
+{ "slot": "LWSS2", "pattern": 2, "gridWidth": 42, "gridHeight": 42, "aliveCells": 250, "seed": 1784 }
