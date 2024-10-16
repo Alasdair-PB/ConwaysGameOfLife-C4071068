@@ -186,6 +186,7 @@ class MyConsole
             WaitAndClear();
             Experimentation::SeedGenerator generator = Experimentation::SeedGenerator(startSeed);
             bool continueGame = true;
+
             int seed;
             Game myGame;
 
@@ -198,6 +199,7 @@ class MyConsole
                 CheckPause();
             }
 
+            cout << (seed - startSeed + 1) << " experiments have been run." << endl;
             cout << "Enter any key to proceed" << endl;
             char x;
             cin >> x;

@@ -73,7 +73,7 @@ class Grid
 			int row, int col, int patternHeight, int patternWidth,
 			int gridWidth, const std::bitset<GridSize>& gridSegment);
 
-		template <size_t PatternSize> bool GetHistory(Vector2<int> pos, PatternMask<PatternSize> pattern);
+		template <size_t PatternSize> bool GetHistory(Vector2<int> pos, PatternMask<PatternSize> pattern, int history);
 
 		template <size_t PatternSize> bool CheckForOverlap(PatternMask<PatternSize> patternBase, std::bitset<64> bits);
 		void ClearGrid();

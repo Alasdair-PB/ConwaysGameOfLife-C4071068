@@ -20,7 +20,6 @@ namespace Patterns
 				}
 			}
 		}
-		cout << rotatedPattern <<  ": " << newSize.x << ", " << newSize.y << endl;
 		return PatternMask<N>(rotatedPattern, newSize);
 	}
 
@@ -45,7 +44,6 @@ namespace Patterns
 					flippedPattern.set(newI * originalSize.x + newJ);
 			}
 		}
-		cout << flippedPattern << ": " << originalSize.x << ", " << originalSize.y << endl;
 		return PatternMask<N>(flippedPattern, originalSize);
 	}
 
