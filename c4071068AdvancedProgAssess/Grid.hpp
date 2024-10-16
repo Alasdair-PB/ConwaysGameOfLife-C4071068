@@ -64,7 +64,7 @@ class Grid
 
 
 	private:
-		template <size_t PatternSize> std::bitset<PatternSize> GridGetBoxSelection(Vector2<int> const coord, int dimension);
+		template <size_t PatternSize> std::bitset<PatternSize> GridGetBoxSelection(Vector2<int> const coord, int dimension, int historyIndex);
 		template <size_t PatternSize, size_t GridSize> bool HasOverlap(
 			const std::bitset<GridSize>& gridSegment,
 			const std::bitset<PatternSize>& myPattern,
@@ -72,6 +72,8 @@ class Grid
 		template <size_t PatternSize, size_t GridSize>std::bitset<PatternSize> ExtractPattern(
 			int row, int col, int patternHeight, int patternWidth,
 			int gridWidth, const std::bitset<GridSize>& gridSegment);
+
+		template <size_t PatternSize> bool GetHistory(Vector2<int> pos, PatternMask<PatternSize> pattern);
 
 		template <size_t PatternSize> bool CheckForOverlap(PatternMask<PatternSize> patternBase, std::bitset<64> bits);
 		void ClearGrid();

@@ -3,3 +3,8 @@
 { "slot": "Block2", "pattern": 6, "gridWidth": 43, "gridHeight": 54, "aliveCells": 140, "seed": 54 }
 { "slot": "Glider1", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 250, "seed": 16 }
 { "slot": "Block3", "pattern": 6, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 30 }
+{ "slot": "Beehive2", "pattern": 5, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 33 }
+{ "slot": "Glider2", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 85 }
+{ "slot": "Toad1", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 5 }
+{ "slot": "Toad2", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 5 }
+{ "slot": "Toad3", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 51 }

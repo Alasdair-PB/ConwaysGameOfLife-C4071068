@@ -7,11 +7,10 @@
 template <size_t T>
 class PatternMask
 {
-private:
-    const std::bitset<T> pattern;
-    const Vector2<int> dimensions;
 
 public:
+    const std::bitset<T> pattern;
+    const Vector2<int> dimensions;
     PatternMask(const std::bitset<T>& pattern, const Vector2<int>& dimensions)
         : pattern(pattern), dimensions(dimensions) {}
 

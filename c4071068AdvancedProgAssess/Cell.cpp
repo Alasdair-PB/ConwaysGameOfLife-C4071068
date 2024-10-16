@@ -1,4 +1,5 @@
 #include "Cell.hpp"
+#include <bitset>
 
 void Cell::GetNextState(bool* neighbours, const int neighbourCount)
 {
@@ -21,7 +22,28 @@ int Cell::IncrementCount(bool neighbourState) {
 	return neighbourState ? 1 : 0;
 }
 
+
+bool Cell::GetHistory(int shiftCount) 
+{
+	int index = this->historyIndex - shiftCount;
+
+	if (index < 0)
+		return false;
+
+	return this->history[index];
+}
+
+
 void Cell::SetNextState() 
 {
+	if (this->historyIndex >= this->history.size()) 
+	{
+		this->history >>= 1;  
+		this->historyIndex = this->history.size() - 1;
+	}
+
+	this->history[this->historyIndex] = this->alive;
+	this->historyIndex++;
+
 	this->alive = this->nextState;
 }

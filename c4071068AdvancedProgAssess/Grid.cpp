@@ -222,7 +222,7 @@ bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitse
 // Create a bit set pattern of a defined bit size that can be used to compare against any pattern
 // dimesion is the width/height of the box selection- technically could get this from sqr(ptrSize) but that would be expensive
 template <size_t PatternSize>
-std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int dimension)
+std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int dimension, int historyIndex)
 {
 	std::bitset<PatternSize> selection;
 	for (int i = 0; i < dimension; i++) 
@@ -234,7 +234,9 @@ std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int d
 
 			if (gridX >= 0 && gridX < this->gridWidth && 
 				gridY >= 0 && gridY < this->gridHeight)
-				selection[(i * dimension) + j] = this->grid[gridX][gridY].alive ? 1 : 0;
+				selection[(i * dimension) + j] = (historyIndex == 0 ? 
+					(this->grid[gridX][gridY].alive ? 1 : 0) : 
+					(this->grid[gridX][gridY].GetHistory((historyIndex)) ? 1 : 0));
 			else
 				selection[(i * dimension) + j] = 0;
 		}
@@ -252,6 +254,13 @@ template <size_t PatternSize> bool Grid::CheckForOverlap(PatternMask<PatternSize
 	return false;
 }
 
+template <size_t PatternSize> bool Grid::GetHistory(Vector2<int> pos, PatternMask<PatternSize> pattern)
+{
+	std::bitset<64> oldBits = GridGetBoxSelection<64>(pos, 8, 1);
+	if (CheckForOverlap<PatternSize>(pattern, oldBits))
+		return true;
+}
+
 // Checks a 8 by 8 grid around every alive block and compares it to each pattern
 bool Grid::CheckForPattern(Pattern pattern) 
 {
@@ -261,45 +270,76 @@ bool Grid::CheckForPattern(Pattern pattern)
 		{
 			if (this->grid[i][j].alive) 
 			{
+				if ((j > 0 && this->grid[i][j - 1].alive) || (i > 0 && this->grid[i - 1][j].alive)) 
+					continue;  
 
 				Vector2<int> pos = Vector2<int>(i - 2, j - 2);
-				std::bitset<64> bits = GridGetBoxSelection<64>(pos, 8);
-				int aliveSquares = bits.count(); // use for optimizations 
-				bool end;
+				std::bitset<64> bits = GridGetBoxSelection<64>(pos, 8, 0);
+				int aliveSquares = bits.count(); 
+
+				if (aliveSquares < 3)
+					continue;
+
 				switch (pattern)
 				{
 					case Grid::Glider:
-						end = CheckForOverlap<25>(Patterns::glider, bits);
-						if (end)
-							return end;
-						break;
-					case Grid::LWSS:
-						end = CheckForOverlap<42>(Patterns::lwss, bits);
-						if (end)
-							return end;
-						break;
-					case Grid::Toad:
-						if (CheckForOverlap<24>(Patterns::toadA1, bits) || 
-							CheckForOverlap<24>(Patterns::toadA2, bits) ||
-							CheckForOverlap<24>(Patterns::toadA3, bits) ||
-							CheckForOverlap<24>(Patterns::toadA4, bits))
+
+						if (aliveSquares < 5)
+							continue;
+
+						if (CheckForOverlap<25>(Patterns::glider, bits))
 							return true;
 						break;
+					case Grid::LWSS:
+						if (CheckForOverlap<42>(Patterns::lwss, bits))
+						{
+							return true;
+						}
+						break;
+					case Grid::Toad:
+						if (CheckForOverlap<24>(Patterns::toadA1, bits))
+						{
+							if (GetHistory<36>(pos, Patterns::toadB1))
+								return true;
+						}
+						else if (CheckForOverlap<24>(Patterns::toadA2, bits)) {
+							if (GetHistory<36>(pos, Patterns::toadB2))
+								return true;
+						}
+						else if (CheckForOverlap<24>(Patterns::toadA3, bits)) {
+							if (GetHistory<36>(pos, Patterns::toadB3))
+								return true;
+						}
+						else if (CheckForOverlap<24>(Patterns::toadA4, bits)) {
+							if (GetHistory<36>(pos, Patterns::toadB4))
+								return true;
+						}
+							
+						break;
 					case Grid::Blinker:
-						end = CheckForOverlap<15>(Patterns::blinkerA, bits);
-						if (end)
-							return end;
+						if (CheckForOverlap<15>(Patterns::blinkerA, bits))
+						{
+							if (GetHistory<15>(pos, Patterns::blinkerB))
+								return true;
+						}
+						else if (CheckForOverlap<15>(Patterns::blinkerB, bits)) 
+						{
+							if (GetHistory<15>(pos, Patterns::blinkerA))
+								return true;
+						}
 						break;
 					case Grid::Beehive:
-						end = CheckForOverlap<30>(Patterns::beehive, bits);
-						// flipped
-						if (end)
-							return end;
+						if (CheckForOverlap<30>(Patterns::beehive, bits)) 
+						{
+							if (GetHistory<30>(pos, Patterns::beehive))
+								return true;
+						}
 						break;
 					case Grid::Block:
-						end = CheckForOverlap<16>(Patterns::block, bits);
-						if (end)
-							return end;
+						if (CheckForOverlap<16>(Patterns::block, bits)) {
+							if (GetHistory<16>(pos, Patterns::block))
+								return true;
+						}
 						break;
 					default:
 						break;
