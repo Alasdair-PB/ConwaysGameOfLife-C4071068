@@ -150,27 +150,7 @@ bool Grid::IsGridEmpty()
 	return true;
 }
 
-
 // Get grid area based on dimensions such that it can be comapred to pattern
-
-// for 8 by 8 to 3 by 5
-// 00000000
-// 00000000
-// 00000000
-// 00000000
-// 00111100
-// 00111100
-// 00000000
-// 00000000
-
-
-// 3 by 5 => 
-
-// 000
-// 000
-// 000
-// 000
-// 001
 
 template <size_t PatternSize, size_t GridSize>
 std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeight, int patternWidth,
@@ -287,14 +267,56 @@ bool Grid::CheckForPattern(Pattern pattern)
 						if (aliveSquares < 5)
 							continue;
 
-						if (CheckForOverlap<25>(Patterns::glider, bits))
+						if (CheckForOverlap<25>(Patterns::gliderA1, bits) &&
+							GetHistory<25>(pos, Patterns::gliderB1, 1) &&
+							GetHistory<25>(pos, Patterns::gliderC1, 2) &&
+							GetHistory<25>(pos, Patterns::gliderD1, 3))
 							return true;
+						else if (CheckForOverlap<25>(Patterns::gliderA2, bits) &&
+							GetHistory<25>(pos, Patterns::gliderB2, 1) &&
+							GetHistory<25>(pos, Patterns::gliderC2, 2) &&
+							GetHistory<25>(pos, Patterns::gliderD2, 3))
+							return true;
+						else if (CheckForOverlap<25>(Patterns::gliderA3, bits) &&
+							GetHistory<25>(pos, Patterns::gliderB3, 1) &&
+							GetHistory<25>(pos, Patterns::gliderC3, 2) &&
+							GetHistory<25>(pos, Patterns::gliderD3, 3))
+							return true;
+
+						else if (CheckForOverlap<25>(Patterns::gliderA4, bits) &&
+							GetHistory<25>(pos, Patterns::gliderB4, 1) &&
+							GetHistory<25>(pos, Patterns::gliderC4, 2) &&
+							GetHistory<25>(pos, Patterns::gliderD4, 3))
+							return true;
+
 						break;
 					case Grid::LWSS:
-						if (CheckForOverlap<42>(Patterns::lwss, bits))
-						{
+
+						if (aliveSquares < 9)
+							continue;
+
+						if (CheckForOverlap<42>(Patterns::lwssA1, bits) &&
+							GetHistory<42>(pos, Patterns::lwssB1, 1))// &&
+							//GetHistory<42>(pos, Patterns::lwssC1, 2) &&
+							//GetHistory<42>(pos, Patterns::lwssD1, 3))
 							return true;
-						}
+						else if (CheckForOverlap<42>(Patterns::lwssA2, bits) &&
+							GetHistory<42>(pos, Patterns::lwssB2, 1))// &&
+							//GetHistory<42>(pos, Patterns::lwssC2, 2) &&
+							//GetHistory<42>(pos, Patterns::lwssD2, 3))
+							return true;
+						else if (CheckForOverlap<42>(Patterns::lwssA3, bits) &&
+							GetHistory<42>(pos, Patterns::lwssB3, 1))// &&
+							//GetHistory<42>(pos, Patterns::lwssC3, 2) &&
+							//GetHistory<42>(pos, Patterns::lwssD3, 3))
+							return true;
+
+						else if (CheckForOverlap<42>(Patterns::lwssA4, bits) &&
+							GetHistory<42>(pos, Patterns::lwssB4, 1))// &&
+							//GetHistory<42>(pos, Patterns::lwssC4, 2) &&
+							//GetHistory<42>(pos, Patterns::lwssD4, 3))
+							return true;
+
 						break;
 					case Grid::Toad:
 						if (CheckForOverlap<24>(Patterns::toadA1, bits))

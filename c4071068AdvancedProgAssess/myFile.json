@@ -10,3 +10,7 @@
 { "slot": "Toad3", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 51 }
 { "slot": "Toad4", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 1203 }
 { "slot": "Toad5", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 1523 }
+{ "slot": "Toad6", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 5 }
+{ "slot": "Glider3", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 42 }
+{ "slot": "Glider4", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 85 }
+{ "slot": "LWSS1", "pattern": 2, "gridWidth": 42, "gridHeight": 42, "aliveCells": 250, "seed": 1718 }

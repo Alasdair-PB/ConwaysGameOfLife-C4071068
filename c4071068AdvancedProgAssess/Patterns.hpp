@@ -48,15 +48,18 @@ namespace Patterns
 	}
 
 
-	// Method for get Dimensions
+	// *************************************** Still Lifes *****************************************************************
 
 	const PatternMask<16> block(std::bitset<16>("0000011001100000"), Vector2<int>(4, 4));
 	const PatternMask<30> beehive(std::bitset<30>("000000001100010010001100000000"), Vector2<int>(6, 5)); 
 
+	// *************************************** Blinker *****************************************************************
+
 	const PatternMask<15> blinkerA(std::bitset<15>("000010010010000"), Vector2<int>(3, 5));
 	const PatternMask<15> blinkerB = rotate90(blinkerA);
 
-	// Toad frame 1 all orientations
+	// *************************************** Toads *****************************************************************
+
 	const PatternMask<24> toadA1(std::bitset<24>("000000001110011100000000"), Vector2<int>(6, 4));  
 	const PatternMask<24> toadA2= rotate90(toadA1); 
 	const PatternMask<24> toadA3 = flip(toadA1, FlipAxis::Horizontal);
@@ -67,9 +70,48 @@ namespace Patterns
 	const PatternMask<36> toadB3 = flip(toadB1, FlipAxis::Horizontal);
 	const PatternMask<36> toadB4 = flip(toadB2, FlipAxis::Vertical);
 
-	const PatternMask<25> glider(std::bitset<25>("0000000100000100111000000"), Vector2<int>(5, 5));
-	const PatternMask<42> lwss(std::bitset<42>("000000000100100100000010001001111000000000"), Vector2<int>(6, 7));
+	// *************************************** Gliders *****************************************************************
 
+	const PatternMask<25> gliderA1(std::bitset<25>("0000001000001100110000000"), Vector2<int>(5, 5));
+	const PatternMask<25> gliderA2 = rotate90(gliderA1);
+	const PatternMask<25> gliderA3 = flip(gliderA1, FlipAxis::Horizontal);
+	const PatternMask<25> gliderA4 = flip(gliderA2, FlipAxis::Vertical);
 
-	// a glider or a LWSS appears.
+	const PatternMask<25> gliderB1(std::bitset<25>("0000000010010100011000000"), Vector2<int>(5, 5));
+	const PatternMask<25> gliderB2 = rotate90(gliderB1);
+	const PatternMask<25> gliderB3 = flip(gliderB1, FlipAxis::Horizontal);
+	const PatternMask<25> gliderB4 = flip(gliderB2, FlipAxis::Vertical);
+
+	const PatternMask<25> gliderC1 = flip(gliderA2, FlipAxis::Horizontal);
+	const PatternMask<25> gliderC2 = rotate90(gliderC1);
+	const PatternMask<25> gliderC3 = flip(gliderC1, FlipAxis::Horizontal);
+	const PatternMask<25> gliderC4 = flip(gliderC2, FlipAxis::Vertical);
+
+	const PatternMask<25> gliderD1 = flip(gliderB2, FlipAxis::Horizontal);
+	const PatternMask<25> gliderD2 = rotate90(gliderD1);
+	const PatternMask<25> gliderD3 = flip(gliderD1, FlipAxis::Horizontal);
+	const PatternMask<25> gliderD4 = flip(gliderD2, FlipAxis::Vertical);
+
+	// *************************************** LWSS *****************************************************************
+
+	const PatternMask<42> lwssA1(std::bitset<42>("000000000111100100010000001001001000000000"), Vector2<int>(7, 6));
+
+	const PatternMask<42> lwssA2 = rotate90(lwssA1);
+	const PatternMask<42> lwssA3 = flip(lwssA1, FlipAxis::Horizontal);
+	const PatternMask<42> lwssA4 = flip(lwssA2, FlipAxis::Vertical);
+
+	const PatternMask<42> lwssB1(std::bitset<42>("000000000011000110110011110000110000000000"), Vector2<int>(7, 6));
+	const PatternMask<42> lwssB2 = rotate90(lwssB1);
+	const PatternMask<42> lwssB3 = flip(lwssB1, FlipAxis::Horizontal);
+	const PatternMask<42> lwssB4 = flip(lwssB2, FlipAxis::Vertical);
+
+	const PatternMask<42> lwssC1 = flip(lwssA1, FlipAxis::Vertical);
+	const PatternMask<42> lwssC2 = rotate90(lwssC1);
+	const PatternMask<42> lwssC3 = flip(lwssC1, FlipAxis::Horizontal);
+	const PatternMask<42> lwssC4 = flip(lwssC2, FlipAxis::Vertical);
+
+	const PatternMask<42> lwssD1 = flip(lwssB1, FlipAxis::Vertical);
+	const PatternMask<42> lwssD2 = rotate90(lwssD1);
+	const PatternMask<42> lwssD3 = flip(lwssD1, FlipAxis::Horizontal);
+	const PatternMask<42> lwssD4 = flip(lwssD2, FlipAxis::Vertical);
 }
