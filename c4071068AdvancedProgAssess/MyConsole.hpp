@@ -18,12 +18,11 @@ using namespace std;
 class MyConsole
 {
     private:
-        const std::string fileName = "myFile.json";
+        const string fileName = "myFile.json";
         atomic<bool> continueGame;
         atomic<int> threadsInUse;
         mutex seedMutex;
         mutex counterMutex;
-        //int successfulSeed;
 
         struct Result {
             int successfulSeed; 
@@ -39,7 +38,7 @@ class MyConsole
 
         void WaitAndClear() 
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             system("cls");
         }
 
@@ -50,7 +49,7 @@ class MyConsole
             string message = "Which pattern would you like to load?: ";
             choice = GetAllChoices(message);
 
-            std::vector<SaveManager::GameSaveData> allData;
+            vector<SaveManager::GameSaveData> allData;
 
             switch (choice)
             {
@@ -93,7 +92,7 @@ class MyConsole
                     string message;
                     message += "Which save slot would you like to load?\n";
                     for (int i = 0; i < dataSize; i++) {
-                        message += "Slot: " + std::to_string(i) + "\n";
+                        message += "Slot: " + to_string(i) + "\n";
                     }
 
                     choice = CinIntValueContinuous(message);
@@ -220,7 +219,8 @@ class MyConsole
             WaitAndClear();
         }
 
-        void ContinueSearch(Grid::Pattern pattern, int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
+        void ContinueSearch(Grid::Pattern pattern, int seed, int gridWidth, 
+            int gridHeight, int maxSteps, int aliveCells)
         {
             WaitAndClear();
             int choice;
@@ -228,37 +228,39 @@ class MyConsole
             cin >> choice;
             switch (choice)
             {
-            case(1):
-            {
-                CreateNewSeedSearch(pattern, ++seed, gridWidth, gridHeight, maxSteps, aliveCells);
-                break;
-            }
-            default:
-                break;
+                case(1):
+                {
+                    CreateNewSeedSearch(pattern, ++seed, gridWidth, gridHeight, maxSteps, aliveCells);
+                    break;
+                }
+                default:
+                    break;
             }
             WaitAndClear();
         }
 
-        void Reset() {
+        void Reset() 
+        {
             continueGame = true;
             threadsInUse = 0;
-
             result = { -1, 0, 0 ,0 };
-           // successfulSeed = -1;
         }
 
-        void increment() {
-            lock_guard < std::mutex > guard(counterMutex);
+        void increment() 
+        {
+            lock_guard < mutex > guard(counterMutex);
             threadsInUse++;
         }
 
-        void decrement() {
-            lock_guard < std::mutex > guard(counterMutex);
+        void decrement() 
+        {
+            lock_guard < mutex > guard(counterMutex);
             threadsInUse--;
 
         }
 
-        void Search(Grid::Pattern pattern, int gridWidth, int gridHeight, int maxSteps, int aliveCells, Experimentation::SeedGenerator* generator)
+        void Search(Grid::Pattern pattern, int gridWidth, int gridHeight, 
+            int maxSteps, int aliveCells, Experimentation::SeedGenerator* generator)
         {
             increment();
 
@@ -266,10 +268,9 @@ class MyConsole
             Game myGame(seed, gridWidth, gridHeight, aliveCells, maxSteps);
 
             if (myGame.FindPattern(pattern)) {
-                lock_guard<std::mutex> lock(seedMutex);
+                lock_guard<mutex> lock(seedMutex);
                 if (continueGame) {
                     result = { seed, gridHeight, gridWidth ,aliveCells };
-                    //successfulSeed = seed;
                     continueGame = false;
                 }
             }
@@ -278,7 +279,7 @@ class MyConsole
         }
 
         Result GetSuccessfulSeed() {
-            lock_guard<std::mutex> lock(seedMutex);
+            lock_guard<mutex> lock(seedMutex);
             return result;
         }
 
@@ -293,9 +294,8 @@ class MyConsole
             while (continueGame) 
             {
                 if (threadsInUse < 3) {
-                    std::thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
+                   thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
                     searchThread.detach();
-                    //CheckPause();
                 }
             }
 
@@ -306,7 +306,7 @@ class MyConsole
             SaveSeed(pattern, seed, gridWidth, gridHeight, maxSteps, aliveCells);
             ContinueSearch(pattern, seed, gridWidth, gridHeight, maxSteps, aliveCells);
 
-            std::cout << "What would you like to do now?" << std::endl;
+            cout << "What would you like to do now?" << endl;
             GameModes();
         }
 
@@ -317,12 +317,12 @@ class MyConsole
                 int choice;
                 cin >> choice;
 
-                if (std::cin.fail())
+                if (cin.fail())
                 {
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     WaitAndClear();
-                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    cout << "Invalid input. Please enter a number." << endl;
                     WaitAndClear();
                 }
                 else
@@ -363,17 +363,14 @@ class MyConsole
                 int stepCap = 0; 
                 while (continueGame)
                 {
-
                     if (stepCap > maxIterations) {
                         break;
                     }
                     else if (threadsInUse < 2) {
                         stepCap++;
-                        std::thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
+                        thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
                         searchThread.detach();
-                        //CheckPause();
                     }
-    
                 }
 
                 if (stepCap > maxIterations)
@@ -394,17 +391,16 @@ class MyConsole
                 }
             }
 
-            if (bestERN < 999999) {
-
+            if (bestERN < 999999) 
+            {
                 cout << "The best ERN value found for this seed is: " << bestERN << endl;
                 SaveSeed(pattern, bestSeed, bestGridWidth, bestGridHeight, maxSteps, bestAliveCells);
             }
-            else {
+            else 
                 cout << "No best case ERN could be found within this step count" << endl;
-            }
 
             WaitAndClear();
-            std::cout << "What would you like to do now?" << std::endl;
+            cout << "What would you like to do now?" << endl;
             GameModes();
         }
 
@@ -419,14 +415,12 @@ class MyConsole
                 int choice;
                 cin >> choice;
 
-
-
-                if (std::cin.fail())
+                if (cin.fail())
                 {
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     WaitAndClear();
-                    std::cout << "Invalid input. Please enter a number." << std::endl;
+                    cout << "Invalid input. Please enter a number." << endl;
                     WaitAndClear();
                 }
                 else
@@ -444,26 +438,26 @@ class MyConsole
 
             switch (choice)
             {
-            case Grid::Blinker:
-                SetSeedSearch(Grid::Blinker);
-                break;
-            case Grid::Block:
-                SetSeedSearch(Grid::Block);
-                break;
-            case Grid::Glider:
-                SetSeedSearch(Grid::Glider);
-                break;
-            case Grid::LWSS:
-                SetSeedSearch(Grid::LWSS);
-                break;
-            case Grid::Toad:
-                SetSeedSearch(Grid::Toad);
-                break;
-            case Grid::Beehive:
-                SetSeedSearch(Grid::Beehive);
-                break;
-            case Grid::Empty: break;
-            default:  break;
+                case Grid::Blinker:
+                    SetSeedSearch(Grid::Blinker);
+                    break;
+                case Grid::Block:
+                    SetSeedSearch(Grid::Block);
+                    break;
+                case Grid::Glider:
+                    SetSeedSearch(Grid::Glider);
+                    break;
+                case Grid::LWSS:
+                    SetSeedSearch(Grid::LWSS);
+                    break;
+                case Grid::Toad:
+                    SetSeedSearch(Grid::Toad);
+                    break;
+                case Grid::Beehive:
+                    SetSeedSearch(Grid::Beehive);
+                    break;
+                case Grid::Empty: break;
+                default:  break;
             }
         }
 
@@ -478,61 +472,61 @@ class MyConsole
 
             switch (choice)
             {
-            case Grid::Blinker:
-                SetERNSearch(Grid::Blinker);
-                break;
-            case Grid::Block:
-                SetERNSearch(Grid::Block);
-                break;
-            case Grid::Glider:
-                SetERNSearch(Grid::Glider);
-                break;
-            case Grid::LWSS:
-                SetERNSearch(Grid::LWSS);
-                break;
-            case Grid::Toad:
-                SetERNSearch(Grid::Toad);
-                break;
-            case Grid::Beehive:
-                SetERNSearch(Grid::Beehive);
-                break;
-            case Grid::Empty: break;
-            default:  break;
+                case Grid::Blinker:
+                    SetERNSearch(Grid::Blinker);
+                    break;
+                case Grid::Block:
+                    SetERNSearch(Grid::Block);
+                    break;
+                case Grid::Glider:
+                    SetERNSearch(Grid::Glider);
+                    break;
+                case Grid::LWSS:
+                    SetERNSearch(Grid::LWSS);
+                    break;
+                case Grid::Toad:
+                    SetERNSearch(Grid::Toad);
+                    break;
+                case Grid::Beehive:
+                    SetERNSearch(Grid::Beehive);
+                    break;
+                case Grid::Empty: break;
+                default:  break;
             }
         }
 
         void GameModes() 
         {
             int choice;
-            std::string message = "Would you like to:\n(1) Load Game By Seed\n(2) Start New Game\n(3) Find ERNs\n(4) End Game\n";
+            string message = "Would you like to:\n(1) Load Game By Seed\n(2) Start New Game\n(3) Find ERNs\n(4) End Game\n";
             choice = CinIntValueContinuous(message);
 
             switch (choice)
             {
-            case (1):
-                LoadSeed();
-                break;
+                case (1):
+                    LoadSeed();
+                    break;
 
-            case (2):
-                NewSeed();
-                break;
-            case (3):
-                NewERN();
-                 break;
-            case (4):
-                return;
-            default:
-                WaitAndClear();
-                cout << "Your input did not correlate to any valid inputs." << endl;
-                WaitAndClear();
-                GameModes();
-                break;
+                case (2):
+                    NewSeed();
+                    break;
+                case (3):
+                    NewERN();
+                     break;
+                case (4):
+                    return;
+                default:
+                    WaitAndClear();
+                    cout << "Your input did not correlate to any valid inputs." << endl;
+                    WaitAndClear();
+                    GameModes();
+                    break;
             }
         }
 
         void Intro()
         {
-            std::cout << "Welcome to Conway's Game of life:";
+            cout << "Welcome to Conway's Game of life:";
             GameModes();
         }
 

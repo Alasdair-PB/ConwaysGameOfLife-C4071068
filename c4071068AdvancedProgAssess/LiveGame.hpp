@@ -49,7 +49,7 @@ class LiveGame : Game
                     return;
                     break;
                 case Continue:
-                    std::this_thread::sleep_for(std::chrono::milliseconds(this->stepTime));
+                    this_thread::sleep_for(chrono::milliseconds(this->stepTime));
                     break;
                 case GridEmpty:
                     grid.TerminateGrid();

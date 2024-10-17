@@ -79,7 +79,6 @@ void Grid::PrintGrid()
 	cout << myOutput;
 }
 
-// Pass neighbouring cell states to each cell such that it can work out its next state
 void Grid::GetCellsInThreads(int* x) 
 {
 	bool* neighbours = new bool[8];
@@ -106,10 +105,8 @@ void Grid::GetCellsInThreads(int* x)
 		this->grid[*x][y].GetNextState(neighbours, 8);
 	}
 	delete[] neighbours;
-	//delete x;
 }
 
-// Calls GetCellsInThreads via threads for each row then join threads
 void Grid::GetNextCells()
 {
 	//std::vector<std::thread> threads;
@@ -138,7 +135,6 @@ void Grid::SetNextCells()
 }
 
 
-// NOTE TO SELF> Combine with default pattern check to avoid an insane amount of loops
 bool Grid::IsGridEmpty() 
 {
 	for (int i = 0; i < this->gridWidth; i++)
@@ -152,8 +148,6 @@ bool Grid::IsGridEmpty()
 	return true;
 }
 
-// Get grid area based on dimensions such that it can be comapred to pattern
-
 template <size_t PatternSize, size_t GridSize>
 std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeight, int patternWidth,
 	int gridWidth, const std::bitset<GridSize>& gridSegment)
@@ -164,8 +158,6 @@ std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeigh
 	{
 		for (int i = 0; i < patternWidth; i++) 
 		{
-
-			// Discovered via heavy debugging index of bitset seems to start from right of bitset data structure
 			int gridIndex = GridSize - 1 - (((row + j) * gridWidth) + (col + i));
 			int patternIndex = PatternSize - 1 - ((j * patternWidth) + i);
 
@@ -178,7 +170,6 @@ std::bitset<PatternSize> Grid::ExtractPattern(int row, int col, int patternHeigh
 	return extractedPattern;
 }
 
-// Check for overlap for each bit (including dead cells)
 template <size_t PatternSize, size_t GridSize>
 bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitset<PatternSize>& myPattern,
 	int selectionWidth, Vector2<int> dimensions)
@@ -201,8 +192,6 @@ bool Grid::HasOverlap(const std::bitset<GridSize>& gridSegment, const std::bitse
 	return false;
 }
 
-// Create a bit set pattern of a defined bit size that can be used to compare against any pattern
-// dimesion is the width/height of the box selection- technically could get this from sqr(ptrSize) but that would be expensive
 template <size_t PatternSize>
 std::bitset<PatternSize> Grid::GridGetBoxSelection(Vector2<int> const pos, int dimension, int historyIndex)
 {
@@ -244,7 +233,6 @@ template <size_t PatternSize> bool Grid::GetHistory(Vector2<int> pos, PatternMas
 		return true;
 }
 
-// Checks a 8 by 8 grid around every alive block and compares it to each pattern
 bool Grid::CheckForPattern(Pattern pattern) 
 {
 	for (int i = 0; i < this->gridWidth; i++)

@@ -7,6 +7,6 @@ int main()
 {
     MyConsole myConsole;
     myConsole.Run();
-    std::cout << "End of Program!\n";
+    cout << "End of Program!\n";
     return 0;
 }
