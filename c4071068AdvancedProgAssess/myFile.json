@@ -1,6 +1,5 @@
 { "slot": "Glider1", "pattern": 1, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 10 }
 { "slot": "LWSS1", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 250, "seed": 1306 }
-{ "slot": "LWSS2", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 250, "seed": 1433 }
 { "slot": "Block1", "pattern": 6, "gridWidth": 42, "gridHeight": 42, "aliveCells": 99, "seed": 0 }
 { "slot": "Blinker1", "pattern": 4, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 1 }
 { "slot": "Beehive1", "pattern": 5, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 0 }
@@ -8,9 +7,6 @@
 { "slot": "Glider3", "pattern": 1, "gridWidth": 42, "gridHeight": 42, "aliveCells": 99, "seed": 7 }
 { "slot": "Toad1", "pattern": 3, "gridWidth": 32, "gridHeight": 32, "aliveCells": 99, "seed": 12 }
 { "slot": "Toad2", "pattern": 3, "gridWidth": 45, "gridHeight": 45, "aliveCells": 120, "seed": 44 }
-{ "slot": "LWSS3", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3105 }
-{ "slot": "LWSS4", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3333 }
-{ "slot": "LWSS5", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3734 }
 { "slot": "Glider4", "pattern": 1, "gridWidth": 34, "gridHeight": 34, "aliveCells": 34, "seed": 1542 }
 { "slot": "Block2", "pattern": 6, "gridWidth": 2, "gridHeight": 2, "aliveCells": 3, "seed": 2 }
 { "slot": "Block3", "pattern": 6, "gridWidth": 20, "gridHeight": 8, "aliveCells": 13, "seed": 3 }
@@ -20,3 +16,4 @@
 { "slot": "Blinker2", "pattern": 4, "gridWidth": 4, "gridHeight": 4, "aliveCells": 7, "seed": 14 } //15
 { "slot": "Beehive2", "pattern": 5, "gridWidth": 4, "gridHeight": 4, "aliveCells": 7, "seed": 11 } //15
 { "slot": "Block4", "pattern": 6, "gridWidth": 3, "gridHeight": 3, "aliveCells": 3, "seed": 0 } //9
+{ "slot": "LWSS5", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3105 } // 214
