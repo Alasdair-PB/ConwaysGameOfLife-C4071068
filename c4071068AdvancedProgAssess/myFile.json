@@ -14,4 +14,9 @@
 { "slot": "Glider4", "pattern": 1, "gridWidth": 34, "gridHeight": 34, "aliveCells": 34, "seed": 1542 }
 { "slot": "Block2", "pattern": 6, "gridWidth": 2, "gridHeight": 2, "aliveCells": 3, "seed": 2 }
 { "slot": "Block3", "pattern": 6, "gridWidth": 20, "gridHeight": 8, "aliveCells": 13, "seed": 3 }
-{ "slot": "Glider5", "pattern": 1, "gridWidth": 24, "gridHeight": 5, "aliveCells": 17, "seed": 1 }
+{ "slot": "Glider5", "pattern": 1, "gridWidth": 42, "gridHeight": 42, "aliveCells": 99, "seed": 21 }
+{ "slot": "Toad3", "pattern": 3, "gridWidth": 15, "gridHeight": 14, "aliveCells": 102, "seed": 7 } //ERN 131
+{ "slot": "Glider6", "pattern": 1, "gridWidth": 3, "gridHeight": 15, "aliveCells": 97, "seed": 4 } //115
+{ "slot": "Blinker2", "pattern": 4, "gridWidth": 4, "gridHeight": 4, "aliveCells": 7, "seed": 14 } //15
+{ "slot": "Beehive2", "pattern": 5, "gridWidth": 4, "gridHeight": 4, "aliveCells": 7, "seed": 11 } //15
+{ "slot": "Block4", "pattern": 6, "gridWidth": 3, "gridHeight": 3, "aliveCells": 3, "seed": 0 } //9

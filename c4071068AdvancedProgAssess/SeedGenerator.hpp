@@ -1,9 +1,5 @@
 namespace Experimentation
 {
-    int LoadSeedExample()
-    {
-        return 45233535 % 64234; 
-    }
 
     class SeedGenerator
     {

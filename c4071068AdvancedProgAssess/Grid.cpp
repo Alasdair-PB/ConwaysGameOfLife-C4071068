@@ -325,19 +325,23 @@ bool Grid::CheckForPattern(Pattern pattern)
 						if (CheckForOverlap<24>(Patterns::toadA1, bits))
 						{
 							if (GetHistory<36>(pos, Patterns::toadB1, 1))
-								return true;
+								if (GetHistory<24>(pos, Patterns::toadA1, 2))
+									return true;
 						}
 						else if (CheckForOverlap<24>(Patterns::toadA2, bits)) {
 							if (GetHistory<36>(pos, Patterns::toadB2, 1))
-								return true;
+								if (GetHistory<24>(pos, Patterns::toadA2, 2))
+									return true;
 						}
 						else if (CheckForOverlap<24>(Patterns::toadA3, bits)) {
 							if (GetHistory<36>(pos, Patterns::toadB3, 1))
-								return true;
+								if (GetHistory<24>(pos, Patterns::toadA3, 2))
+									return true;
 						}
 						else if (CheckForOverlap<24>(Patterns::toadA4, bits)) {
 							if (GetHistory<36>(pos, Patterns::toadB4, 1))
-								return true;
+								if (GetHistory<24>(pos, Patterns::toadA4, 2))
+									return true;
 						}
 							
 						break;

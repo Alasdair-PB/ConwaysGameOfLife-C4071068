@@ -2,8 +2,6 @@
 #include "Vector2.hpp"
 #include <bitset>
 
-//enum Direction {Zero, Ninty, ZeroFlipped, NintyFlipped};
-
 template <size_t T>
 class PatternMask
 {
@@ -21,6 +19,4 @@ public:
     const std::bitset<T>& GetPattern() const {
         return pattern;
     }
-
-    // Get Flipped
 };

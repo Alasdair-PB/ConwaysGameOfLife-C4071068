@@ -194,7 +194,7 @@ class MyConsole
             int gridMaxHeight = GetValue("The maximum Grid Height");
             int maxSteps = GetValue("The number of grids tested");
             int maxIterations = GetValue("The maximum iterations per grid before continuing (deciding impossible)");
-            int aliveCells = GetValue("Starting Alive Cell Count");
+            int aliveCells = GetValue("Maximum starting Alive Cell Count");
 
             FindBestCaseERN(pattern, startSeed, maxSteps, maxIterations, gridMaxWidth, gridMaxHeight);
         }
@@ -350,6 +350,9 @@ class MyConsole
                 gridWidth = (rand() % gridWidthMax )+ 1;
                 gridHeight = (rand() % gridHeightMax) + 1;
                 aliveCells =( rand() % ((gridHeight * gridHeight)) - 1);
+
+                if ((gridWidth + gridHeight + aliveCells) > bestERN)
+                    Continue;
 
                 WaitAndClear();
                 Reset();
