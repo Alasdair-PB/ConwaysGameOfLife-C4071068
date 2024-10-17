@@ -29,35 +29,35 @@ void Grid::SetAliveCells(int aliveSquares, int randomSeed)
 	for (int i = 0; i < aliveSquares; i++) {
 
 		Vector2<int> pos = Vector2<int>(
-			rand() % this->gridWidth, 
+			rand() % this->gridWidth,
 			rand() % this->gridHeight
 		);
 
-		pos = pos + 10; // Using operator overloading
+		pos = pos + 1; // Using operator overloading
+		pos = pos - 1; // Using operator overloading
+
 		GetNextFree(&pos, 1);
 		this->grid[pos.x][pos.y].alive = true;
 	}
 }
 
-// Set random value to next value accross if this value has already been selected 
-// (do recursive where neccessary)
 bool Grid::GetNextFree(Vector2<int>* pos, int stepCount)
 {
-	if (stepCount >= this->gridHeight * gridWidth)
-		return false;
+	for (int i = 0; i < this->gridHeight * this->gridWidth; i++) {
+		if (pos->x >= this->gridWidth) {
+			pos->x = 0;
+			pos->y++;
+		}
 
-	if (pos->x >= this->gridWidth)
-	{
-		pos->x = 0;
-		(pos->y)++;
+		if (pos->y >= this->gridHeight)
+			pos->y = 0;
+
+		if (!this->grid[pos->x][pos->y].alive) 
+			return true;
+
+		pos->x++;
 	}
-
-	if (pos->y >= this->gridHeight)
-		pos->y = 0;
-	
-	if (this->grid[pos->x][pos->y].alive)
-		return GetNextFree(pos, stepCount + 1);
-	return true;
+	return false;
 }
 
 void Grid::PrintGrid() 
@@ -65,7 +65,7 @@ void Grid::PrintGrid()
 	string myOutput = "";
 	for (int i = 0; i < this->gridWidth; i++)
 	{
-		myOutput +=".";
+		myOutput += ".";
 		for (int j = 0; j < this->gridHeight; j++)
 		{
 			if (this->grid[i][j].alive)
@@ -112,16 +112,18 @@ void Grid::GetCellsInThreads(int* x)
 // Calls GetCellsInThreads via threads for each row then join threads
 void Grid::GetNextCells()
 {
-	std::vector<std::thread> threads;
+	//std::vector<std::thread> threads;
 
 	for (int x = 0; x < this->gridWidth; x++)
 	{
-		threads.emplace_back(&Grid::GetCellsInThreads, this, new int(x));  
+		GetCellsInThreads(&x);
+		//threads.emplace_back(&Grid::GetCellsInThreads, this, new int(x));  
 	}
 
-	for (int i = 0; i < threads.size(); ++i) {
+	/*for (int i = 0; i < threads.size(); ++i) {
 		threads[i].join();
-	}
+	}*/
+
 }
 
 void Grid::SetNextCells() 
@@ -231,6 +233,7 @@ template <size_t PatternSize> bool Grid::CheckForOverlap(PatternMask<PatternSize
 
 	if (HasOverlap<PatternSize, 64>(bits, myPattern, 8, patternDimensions)) 
 		return true;
+
 	return false;
 }
 
@@ -296,25 +299,25 @@ bool Grid::CheckForPattern(Pattern pattern)
 							continue;
 
 						if (CheckForOverlap<42>(Patterns::lwssA1, bits) &&
-							GetHistory<42>(pos, Patterns::lwssB1, 1))// &&
-							//GetHistory<42>(pos, Patterns::lwssC1, 2) &&
-							//GetHistory<42>(pos, Patterns::lwssD1, 3))
+							GetHistory<42>(pos, Patterns::lwssB1, 1) &&
+							GetHistory<42>(pos, Patterns::lwssC1, 2) &&
+							GetHistory<42>(pos, Patterns::lwssD1, 3))
 							return true;
 						else if (CheckForOverlap<42>(Patterns::lwssA2, bits) &&
-							GetHistory<42>(pos, Patterns::lwssB2, 1))// &&
-							//GetHistory<42>(pos, Patterns::lwssC2, 2) &&
-							//GetHistory<42>(pos, Patterns::lwssD2, 3))
+							GetHistory<42>(pos, Patterns::lwssB2, 1) &&
+							GetHistory<42>(pos, Patterns::lwssC2, 2) &&
+						GetHistory<42>(pos, Patterns::lwssD2, 3))
 							return true;
 						else if (CheckForOverlap<42>(Patterns::lwssA3, bits) &&
-							GetHistory<42>(pos, Patterns::lwssB3, 1))// &&
-							//GetHistory<42>(pos, Patterns::lwssC3, 2) &&
-							//GetHistory<42>(pos, Patterns::lwssD3, 3))
+							GetHistory<42>(pos, Patterns::lwssB3, 1) &&
+							GetHistory<42>(pos, Patterns::lwssC3, 2) &&
+							GetHistory<42>(pos, Patterns::lwssD3, 3))
 							return true;
 
 						else if (CheckForOverlap<42>(Patterns::lwssA4, bits) &&
-							GetHistory<42>(pos, Patterns::lwssB4, 1))// &&
-							//GetHistory<42>(pos, Patterns::lwssC4, 2) &&
-							//GetHistory<42>(pos, Patterns::lwssD4, 3))
+							GetHistory<42>(pos, Patterns::lwssB4, 1) &&
+							GetHistory<42>(pos, Patterns::lwssC4, 2) &&
+							GetHistory<42>(pos, Patterns::lwssD4, 3))
 							return true;
 
 						break;
@@ -419,5 +422,4 @@ void Grid::SetUpGrid(int aliveSquares, int randomSeed)
 
 	ClearGrid();
 	SetAliveCells(aliveSquares, randomSeed);
-
 }

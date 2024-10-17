@@ -8,14 +8,25 @@
 #include "SaveManager.hpp"
 #include "LiveGame.hpp"
 #include <conio.h>
+#include <thread>
+#include <atomic>
+#include <mutex>
+
 
 using namespace std;
 
 class MyConsole
 {
     private:
+        const std::string fileName = "myFile.json";
+        atomic<bool> continueGame;
+        atomic<int> threadsInUse;
+        mutex seedMutex;
+        mutex counterMutex;
+        int successfulSeed;
 
-        const string fileName = "myFile.json";
+        MyConsole(const MyConsole&) = delete;
+        MyConsole& operator=(const MyConsole&) = delete;
 
         void WaitAndClear() 
         {
@@ -101,7 +112,6 @@ class MyConsole
             string message = "Would you like to save this seed?:\n(1) Yes\n(2) No\n";
             choice = CinIntValueContinuous(message);
 
-
             switch (choice)
             {
                 case(1): 
@@ -116,7 +126,6 @@ class MyConsole
                 default:
                     break;
             }
-
         }
 
         
@@ -169,6 +178,19 @@ class MyConsole
             CreateNewSeedSearch(pattern, startSeed, gridWidth, gridHeight, maxSteps, aliveCells);
         }
 
+        void SetERNSearch(Grid::Pattern pattern)
+        {
+            int startSeed = GetValue("Start seed");
+            int gridMaxWidth = GetValue("The maximum Grid Width");
+            int gridMaxHeight = GetValue("The maximum Grid Height");
+            int maxSteps = GetValue("The number of grids tested");
+            int maxIterations = GetValue("The maximum iterations per grid before continuing (deciding impossible)");
+            int aliveCells = GetValue("Starting Alive Cell Count");
+
+            FindBestCaseERN(pattern, startSeed, maxSteps, maxIterations, gridMaxWidth, gridMaxHeight);
+        }
+
+
         void CheckPause() 
         {
             if (_kbhit()) {
@@ -181,51 +203,98 @@ class MyConsole
             }
         }
 
-        void CreateNewSeedSearch(Grid::Pattern pattern, int startSeed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
-        {
-            WaitAndClear();
-            Experimentation::SeedGenerator generator = Experimentation::SeedGenerator(startSeed);
-            bool continueGame = true;
-
-            int seed;
-            Game myGame;
-
-            cout << "Searching..." << endl;
-            while (continueGame)
-            {
-                seed = generator.GetNextSeed();
-                myGame = Game(seed, gridWidth, gridHeight, aliveCells, maxSteps);
-                continueGame = !(myGame.FindPattern(pattern));
-                CheckPause();
-            }
-
-            cout << (seed - startSeed + 1) << " experiments have been run." << endl;
+        void OnExperimentsEnd(int seed, int startSeed) {
+          cout << (seed - startSeed + 1) << " experiments have been run." << endl;
             cout << "Enter any key to proceed" << endl;
             char x;
             cin >> x;
-            
             WaitAndClear();
-            ViewCreateSeed(seed, gridWidth, gridHeight, aliveCells);
-            SaveSeed(pattern, seed, gridWidth,gridHeight, maxSteps, aliveCells);
+        }
 
+        void ContinueSearch(Grid::Pattern pattern, int seed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
+        {
             WaitAndClear();
             int choice;
             cout << "Would you like to continue your search?:" << endl << "(1) Yes " << endl << "(2) No" << endl;
             cin >> choice;
             switch (choice)
             {
-                case(1):
-                {
-                    CreateNewSeedSearch(pattern, ++seed, gridWidth, gridHeight, maxSteps, aliveCells);
-                    break;
+            case(1):
+            {
+                CreateNewSeedSearch(pattern, ++seed, gridWidth, gridHeight, maxSteps, aliveCells);
+                break;
+            }
+            default:
+                break;
+            }
+            WaitAndClear();
+        }
+
+        void Reset() {
+            continueGame = true;
+            threadsInUse = 0;
+            successfulSeed = -1;
+        }
+
+        void increment() {
+            lock_guard < std::mutex > guard(counterMutex);
+            threadsInUse++;
+        }
+
+        void decrement() {
+            lock_guard < std::mutex > guard(counterMutex);
+            threadsInUse--;
+
+        }
+
+        void Search(Grid::Pattern pattern, int gridWidth, int gridHeight, int maxSteps, int aliveCells, Experimentation::SeedGenerator* generator)
+        {
+            increment();
+
+            int seed = generator->GetNextSeed();
+            Game myGame(seed, gridWidth, gridHeight, aliveCells, maxSteps);
+
+            if (myGame.FindPattern(pattern)) {
+                lock_guard<std::mutex> lock(seedMutex);
+                if (continueGame) {
+                    successfulSeed = seed;
+                    continueGame = false;
                 }
-                default:
-                    break;
+            }
+            else 
+                decrement();
+        }
+
+        int GetSuccessfulSeed() {
+            lock_guard<std::mutex> lock(seedMutex);
+            return successfulSeed;
+        }
+
+
+        void CreateNewSeedSearch(Grid::Pattern pattern, int startSeed, int gridWidth, int gridHeight, int maxSteps, int aliveCells)
+        {
+            Reset();  
+            WaitAndClear();
+            Experimentation::SeedGenerator generator = Experimentation::SeedGenerator(startSeed);  
+
+            cout << "Searching..." << endl;
+            while (continueGame) 
+            {
+                if (threadsInUse < 3) {
+                    std::thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
+                    searchThread.detach();
+                    //CheckPause();
+                }
             }
 
+            int seed = GetSuccessfulSeed();
 
-            WaitAndClear();
-            cout << "What would you like to do now?" << endl;
+            OnExperimentsEnd(seed, startSeed);
+            ViewCreateSeed(seed, gridWidth, gridHeight, aliveCells);
+            SaveSeed(pattern, seed, gridWidth, gridHeight, maxSteps, aliveCells);
+            ContinueSearch(pattern, seed, gridWidth, gridHeight, maxSteps, aliveCells);
+
+            std::cout << "What would you like to do now?" << std::endl;
             GameModes();
         }
 
@@ -247,6 +316,75 @@ class MyConsole
                 else
                     return choice;
             }
+        }
+
+        void FindBestCaseERN(Grid::Pattern pattern, int startSeed, int maxSteps, int maxIterations, int gridWidthMax, int gridHeightMax)
+        {
+            int bestSeed = 0;
+            int bestERN = 999999;
+            int bestGridWidth = 0;
+            int bestGridHeight = 0;
+            int bestAliveCells = 0;
+
+            int gridWidth;
+            int gridHeight;
+            int aliveCells;
+
+            srand(startSeed);
+
+            for (int i = 0; i < maxSteps; i++) 
+            {
+
+                gridWidth = rand() % gridWidthMax + 1;
+                gridHeight = rand() % gridHeightMax + 1;
+                aliveCells = rand() % ((gridHeight * gridHeight) - 1);
+
+                WaitAndClear();
+                Reset();
+
+                Experimentation::SeedGenerator generator = Experimentation::SeedGenerator(startSeed);
+
+                cout << "Searching..." << endl;
+                int stepCap = 0; 
+                while (continueGame)
+                {
+
+                    if (stepCap > maxIterations) {
+                        break;
+                    }
+                    else if (threadsInUse < 2) {
+                        stepCap++;
+                        std::thread searchThread(&MyConsole::Search, this, pattern, gridWidth, gridHeight, maxSteps, aliveCells, &generator);
+                        searchThread.detach();
+                        //CheckPause();
+                    }
+    
+                }
+
+                if (stepCap > maxIterations)
+                    continue;
+
+                int seed = GetSuccessfulSeed();
+                int tempERN = aliveCells + gridWidth + gridHeight;
+
+                if (tempERN < bestERN) {
+                    bestERN = tempERN;
+                    bestSeed = seed;
+                }
+            }
+
+            if (bestERN < 999999) {
+
+                cout << "The best ERN value found for this seed is: " << bestERN << endl;
+                SaveSeed(pattern, bestSeed, bestGridWidth, bestGridHeight, maxSteps, bestAliveCells);
+            }
+            else {
+                cout << "No best case ERN could be found within this step count" << endl;
+            }
+
+            WaitAndClear();
+            std::cout << "What would you like to do now?" << std::endl;
+            GameModes();
         }
 
         int GetAllChoices(string message) 
@@ -309,10 +447,43 @@ class MyConsole
         }
 
 
+        void NewERN()
+        {
+            WaitAndClear();
+            string message = "Is there a specific pattern you wish to find an ERN for?";
+
+            int choice;
+            choice = GetAllChoices(message);
+
+            switch (choice)
+            {
+            case Grid::Blinker:
+                SetERNSearch(Grid::Blinker);
+                break;
+            case Grid::Block:
+                SetERNSearch(Grid::Block);
+                break;
+            case Grid::Glider:
+                SetERNSearch(Grid::Glider);
+                break;
+            case Grid::LWSS:
+                SetERNSearch(Grid::LWSS);
+                break;
+            case Grid::Toad:
+                SetERNSearch(Grid::Toad);
+                break;
+            case Grid::Beehive:
+                SetERNSearch(Grid::Beehive);
+                break;
+            case Grid::Empty: break;
+            default:  break;
+            }
+        }
+
         void GameModes() 
         {
             int choice;
-            std::string message = "Would you like to:\n(1) Load Game By Seed\n(2) Start New Game\n(3) End Game\n";
+            std::string message = "Would you like to:\n(1) Load Game By Seed\n(2) Start New Game\n(3) Find ERNs\n(4) End Game\n";
             choice = CinIntValueContinuous(message);
 
             switch (choice)
@@ -325,6 +496,9 @@ class MyConsole
                 NewSeed();
                 break;
             case (3):
+                NewERN();
+                 break;
+            case (4):
                 return;
             default:
                 WaitAndClear();
@@ -343,7 +517,8 @@ class MyConsole
 
 
     public:
-        MyConsole() {};
+
+        MyConsole() : continueGame(true), successfulSeed(-1) {}
 
         void Run() {
             Intro();

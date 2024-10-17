@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-    MyConsole myConsole = MyConsole();
+    MyConsole myConsole;
     myConsole.Run();
     std::cout << "End of Program!\n";
     return 0;

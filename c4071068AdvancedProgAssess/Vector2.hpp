@@ -20,4 +20,9 @@ class Vector2
 		{
 			return Vector2<T>(this->x + scalar, this->y + scalar);
 		}
+		Vector2<T> operator -(T scalar) const
+		{
+			return Vector2<T>(this->x - scalar, this->y - scalar);
+		}
+
 };

@@ -3,6 +3,7 @@
 #include <bitset>
 #include "Vector2.hpp"
 #include "Pattern.hpp"
+#include <iostream>
 
 enum UpdateResult { StepCountExceeded, Continue, PatternFound, GridEmpty };
 
@@ -61,7 +62,6 @@ class Grid
 		void TerminateGrid();
 		void PrintGrid();
 		bool WithInMaxSteps();
-
 
 	private:
 		template <size_t PatternSize> std::bitset<PatternSize> GridGetBoxSelection(Vector2<int> const coord, int dimension, int historyIndex);
