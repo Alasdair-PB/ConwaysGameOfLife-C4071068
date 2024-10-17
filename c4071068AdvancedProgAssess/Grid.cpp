@@ -296,6 +296,7 @@ bool Grid::CheckForPattern(Pattern pattern)
 							GetHistory<42>(pos, Patterns::lwssC2, 2) &&
 						GetHistory<42>(pos, Patterns::lwssD2, 3))
 							return true;
+
 						else if (CheckForOverlap<42>(Patterns::lwssA3, bits) &&
 							GetHistory<42>(pos, Patterns::lwssB3, 1) &&
 							GetHistory<42>(pos, Patterns::lwssC3, 2) &&

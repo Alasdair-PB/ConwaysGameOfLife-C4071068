@@ -17,3 +17,5 @@
 { "slot": "Beehive2", "pattern": 5, "gridWidth": 4, "gridHeight": 4, "aliveCells": 7, "seed": 11 } //15
 { "slot": "Block4", "pattern": 6, "gridWidth": 3, "gridHeight": 3, "aliveCells": 3, "seed": 0 } //9
 { "slot": "LWSS5", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3105 } // 214
+{ "slot": "Block5", "pattern": 6, "gridWidth": 1, "gridHeight": 3, "aliveCells": 4, "seed": 2 }
+{ "slot": "Block6", "pattern": 6, "gridWidth": 2, "gridHeight": 2, "aliveCells": 4, "seed": 2 } //8

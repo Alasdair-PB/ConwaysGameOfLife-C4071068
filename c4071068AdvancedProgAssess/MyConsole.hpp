@@ -347,9 +347,15 @@ class MyConsole
             for (int i = 0; i < maxSteps; i++) 
             {
 
-                gridWidth = (rand() % gridWidthMax )+ 1;
-                gridHeight = (rand() % gridHeightMax) + 1;
-                aliveCells =( rand() % ((gridHeight * gridHeight)) - 1);
+                gridWidth = (rand() % (gridWidthMax + 1));
+                gridHeight = (rand() % (gridHeightMax + 1));
+
+                if (gridWidth == 0)
+                    gridWidth++;
+                else if (gridHeight == 0)
+                    gridHeight++;
+
+                aliveCells =( rand() % ((gridHeight * gridHeight) + 1));
 
                 if ((gridWidth + gridHeight + aliveCells) > bestERN)
                     Continue;
