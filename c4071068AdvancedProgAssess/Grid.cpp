@@ -409,6 +409,11 @@ UpdateResult Grid::UpdateGrid(Pattern endsOn)
 }
 
 void Grid::TerminateGrid() {
+
+	for (int i = 0; i < this->gridWidth; i++)
+	{
+		delete[] this->grid[i];
+	}
 	delete[] this->grid;
 }
 

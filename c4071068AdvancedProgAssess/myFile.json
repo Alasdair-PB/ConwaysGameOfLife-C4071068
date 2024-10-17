@@ -13,3 +13,5 @@
 { "slot": "LWSS5", "pattern": 2, "gridWidth": 32, "gridHeight": 32, "aliveCells": 150, "seed": 3734 }
 { "slot": "Glider4", "pattern": 1, "gridWidth": 34, "gridHeight": 34, "aliveCells": 34, "seed": 1542 }
 { "slot": "Block2", "pattern": 6, "gridWidth": 2, "gridHeight": 2, "aliveCells": 3, "seed": 2 }
+{ "slot": "Block3", "pattern": 6, "gridWidth": 20, "gridHeight": 8, "aliveCells": 13, "seed": 3 }
+{ "slot": "Glider5", "pattern": 1, "gridWidth": 24, "gridHeight": 5, "aliveCells": 17, "seed": 1 }

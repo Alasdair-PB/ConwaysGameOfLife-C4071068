@@ -87,8 +87,8 @@ class Game
             case Continue:
                 break;
             case PatternFound:
-                cout << "Pattern Found in seed: " << seed << endl;
-                cout << "Found at step " << grid.stepCount << "." << endl;
+                //cout << "Pattern Found in seed: " << seed << endl;
+                //cout << "Found at step " << grid.stepCount << "." << endl;
                 grid.TerminateGrid();
                 return true;
                 break;

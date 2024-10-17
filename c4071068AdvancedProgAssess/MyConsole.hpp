@@ -23,7 +23,16 @@ class MyConsole
         atomic<int> threadsInUse;
         mutex seedMutex;
         mutex counterMutex;
-        int successfulSeed;
+        //int successfulSeed;
+
+        struct Result {
+            int successfulSeed; 
+            int height;
+            int width;
+            int aliveCels;
+        };
+
+        Result result;
 
         MyConsole(const MyConsole&) = delete;
         MyConsole& operator=(const MyConsole&) = delete;
@@ -233,7 +242,9 @@ class MyConsole
         void Reset() {
             continueGame = true;
             threadsInUse = 0;
-            successfulSeed = -1;
+
+            result = { -1, 0, 0 ,0 };
+           // successfulSeed = -1;
         }
 
         void increment() {
@@ -257,7 +268,8 @@ class MyConsole
             if (myGame.FindPattern(pattern)) {
                 lock_guard<std::mutex> lock(seedMutex);
                 if (continueGame) {
-                    successfulSeed = seed;
+                    result = { seed, gridHeight, gridWidth ,aliveCells };
+                    //successfulSeed = seed;
                     continueGame = false;
                 }
             }
@@ -265,9 +277,9 @@ class MyConsole
                 decrement();
         }
 
-        int GetSuccessfulSeed() {
+        Result GetSuccessfulSeed() {
             lock_guard<std::mutex> lock(seedMutex);
-            return successfulSeed;
+            return result;
         }
 
 
@@ -287,7 +299,7 @@ class MyConsole
                 }
             }
 
-            int seed = GetSuccessfulSeed();
+            int seed = GetSuccessfulSeed().successfulSeed;
 
             OnExperimentsEnd(seed, startSeed);
             ViewCreateSeed(seed, gridWidth, gridHeight, aliveCells);
@@ -335,9 +347,9 @@ class MyConsole
             for (int i = 0; i < maxSteps; i++) 
             {
 
-                gridWidth = rand() % gridWidthMax + 1;
-                gridHeight = rand() % gridHeightMax + 1;
-                aliveCells = rand() % ((gridHeight * gridHeight) - 1);
+                gridWidth = (rand() % gridWidthMax )+ 1;
+                gridHeight = (rand() % gridHeightMax) + 1;
+                aliveCells =( rand() % ((gridHeight * gridHeight)) - 1);
 
                 WaitAndClear();
                 Reset();
@@ -364,12 +376,18 @@ class MyConsole
                 if (stepCap > maxIterations)
                     continue;
 
-                int seed = GetSuccessfulSeed();
-                int tempERN = aliveCells + gridWidth + gridHeight;
+                Result result = GetSuccessfulSeed();
+                int seed = result.successfulSeed;
+                int tempERN = result.aliveCels + result.width + result.height;
 
                 if (tempERN < bestERN) {
                     bestERN = tempERN;
-                    bestSeed = seed;
+                    bestSeed = result.successfulSeed;
+                    bestGridHeight = result.height;
+                    bestGridWidth = result.width;
+                    bestAliveCells = result.aliveCels;
+
+                    cout << tempERN << endl;
                 }
             }
 
@@ -518,7 +536,7 @@ class MyConsole
 
     public:
 
-        MyConsole() : continueGame(true), successfulSeed(-1) {}
+        MyConsole() : continueGame(true){}
 
         void Run() {
             Intro();
