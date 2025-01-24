@@ -1,7 +1,7 @@
 # Conways game of life
 Coursework for C4071068 my Advanced Programming module at Newcastle.
 
-This project was my first full introduction to C++. The code displays a user interface that always a simulated version of conways game of life to run. 
+This project was my first full introduction to C++. The code displays a user interface that simulates conways game of life to run. 
 Alongside this the user may search for specific patterns that can form in the game/ Including: 
 * spaceships,
 * Oscillators,
